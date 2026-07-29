@@ -1,0 +1,3 @@
+# Normaliza los fines de línea a LF en el repo y en el working tree.
+# Sin esto, core.autocrlf=true deja CRLF al hacer checkout y pelea con Prettier.
+* text=auto eol=lf
