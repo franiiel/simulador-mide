@@ -21,14 +21,15 @@ La pregunta que busca responder no es "cuánto sale el kWh", sino:
 Prototipo temprano. Lo que hay hoy:
 
 - **Motor de cálculo** (`app/domain/`): lógica pura en TypeScript, sin dependencias
-  de React Native, con 3 casos de prueba manuales que pasan.
-- **Scaffold de la app** Expo: `App.tsx` sigue siendo la pantalla por defecto, sin
-  interfaz propia todavía.
+  de React Native, con 10 casos de prueba manuales que pasan. Incluye la función
+  directa (costo de un consumo) y la inversa (cuántos kWh compra un monto).
+- **Calculadora de carga**: una pantalla donde se elige segmento, monto y consumo
+  acumulado, y se ven los kWh resultantes con el desglose por tramo.
 - **Backend** Go + Gin: solo `GET /health`.
 - **Scraper** Python: sin implementar.
 
-Lo que falta para que sea útil: tarifas reales, la función inversa (monto → kWh),
-y la interfaz.
+Lo que falta para que sea útil de verdad: las tarifas reales. Después, la simulación
+mensual y el comparador temporal.
 
 ## El problema
 
@@ -65,11 +66,13 @@ datos y reglas congeladas). El producto está descrito en
 
 ```
 ├── app/                  frontend React Native + Expo (TypeScript strict)
-│   └── domain/           motor de cálculo — TypeScript puro, testeable aislado
-│       ├── types.ts        Segmento, Tramo, Tarifa, ResultadoCalculo
-│       ├── tarifas.ts      JSON de tarifas versionado (hoy, valores de ejemplo)
-│       ├── calculadora.ts  calcularCosto()
-│       └── casos.ts        3 casos de prueba manuales
+│   ├── domain/           motor de cálculo — TypeScript puro, testeable aislado
+│   │   ├── types.ts        Segmento, Tramo, Tarifa, resultados
+│   │   ├── tarifas.ts      JSON de tarifas versionado (hoy, valores de ejemplo)
+│   │   ├── calculadora.ts  calcularCosto(), calcularCostoMensual(), calcularKwh()
+│   │   └── casos.ts        10 casos de prueba manuales
+│   ├── screens/          pantallas (calculadora de carga)
+│   └── store/            estado (zustand) y validación (zod)
 ├── backend/              API Go + Gin — opcional, servirá las tarifas
 ├── scraper/              extracción de tarifas del ENRE (Python) — sin implementar
 └── docs/                 documentación de producto y del modelo de cálculo
@@ -111,10 +114,10 @@ go run ./cmd/api          # :8080, GET /health
 
 ## Roadmap
 
-- Función inversa: dado un monto, cuántos kWh se obtienen.
 - Tarifas reales del ENRE, validadas contra facturas o cargas MIDE reales.
-- Interfaz: calculadora de carga, simulación mensual y comparador temporal.
-- Factor de ajuste MIDE, calibrado empíricamente.
+- Factor de ajuste MIDE, calibrado empíricamente (hoy está en 0).
+- Simulación mensual y comparador temporal: cuánto rinde la misma carga según el día
+  del mes en que se hace.
 - Scraper del ENRE con validación, y `GET /tarifas` en el backend.
 
 ## Licencia

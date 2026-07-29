@@ -16,7 +16,10 @@ del repo.
 mide-app/                 raíz del repo
 ├── docs/                 documentación de producto (idea.md, etc.)
 ├── app/                  frontend React Native + Expo
-│   ├── App.tsx
+│   ├── App.tsx           navegación (stack) y providers
+│   ├── domain/           motor de cálculo — TypeScript puro, sin React
+│   ├── screens/          pantallas
+│   ├── store/            estado (zustand) y validación de formularios (zod)
 │   ├── index.ts
 │   ├── app.json
 │   ├── package.json      (pnpm)
@@ -50,13 +53,20 @@ scaffoldeados para no bloquear cuando se necesiten.
 
 ## Convenciones
 
-- **Motor de cálculo** (`app/`): debe vivir en un módulo TypeScript puro, sin
-  dependencias de React Native, para poder testearlo aislado del renderizado.
+- **Motor de cálculo** (`app/domain/`): TypeScript puro, sin dependencias de React
+  Native, para poder testearlo aislado del renderizado. Las pantallas lo consumen;
+  nunca al revés.
+- **UI**: navegación con `@react-navigation/native-stack`, estado con `zustand`,
+  validación de formularios con `zod`. El store guarda la entrada cruda (texto) y la
+  validación la convierte; el cálculo se deriva en la pantalla, no en el store.
 - **Go** (`backend/`): layout estándar `cmd/` (entrypoints) + `internal/` (handlers,
   lógica, no importable desde fuera del módulo). Se crea `internal/` recién cuando
   haya handlers reales, no antes.
-- **No agregar dependencias nuevas** (navegación, gráficos, testing, etc.) hasta que
-  una feature concreta las necesite. Evitar abstracciones o configuración anticipada.
+- **No agregar dependencias nuevas** (gráficos, testing, persistencia, etc.) hasta que
+  una feature concreta las necesite. Evitar abstracciones anticipadas.
+- **Formateo**: Prettier para TS/JSON/Markdown y `gofmt` para Go. Un hook
+  `PostToolUse` formatea cada archivo al escribirlo; para una pasada completa está la
+  skill `/formatear`.
 
 ## Convenciones de commit
 
@@ -96,7 +106,7 @@ API y el manejo de errores/timeout se documentan acá.
 
 ## Pendiente de definir
 
-- Implementación del motor de cálculo (modelo de `Tarifa`, fórmula de kWh — ver
-  `docs/idea.md`).
+- Tarifas reales del ENRE: las de `app/domain/tarifas.ts` son valores de ejemplo, y
+  el factor de ajuste MIDE (α) está en 0 hasta calibrarlo contra cargas reales.
 - Endpoints reales del backend más allá de `/health`.
 - Lógica del scraper.
