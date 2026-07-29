@@ -1,0 +1,3 @@
+# Sin dependencias todavía. Candidatas cuando se implemente el scraping:
+# requests
+# beautifulsoup4

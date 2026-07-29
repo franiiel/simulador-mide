@@ -1,0 +1,19 @@
+{
+  "enabledPlugins": {
+    "expo@claude-plugins-official": true
+  },
+   "permissions": {
+    "allow": [
+      "Bash(go build *)",
+      "Bash(go vet *)",
+      "Bash(go test *)",
+      "Bash(go fmt *)",
+      "Bash(gofmt *)",
+      "Bash(npx expo-doctor)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
+
+ 
+
