@@ -12,65 +12,92 @@ La pregunta que busca responder no es "cuánto sale el kWh", sino:
 > Proyecto personal, **sin relación ni afiliación con Edenor ni con el ENRE**. No es
 > la aplicación oficial de MIDE.
 >
-> Las tarifas incluidas en `app/domain/tarifas.ts` son **valores de ejemplo
-> inventados**, no las tarifas reales vigentes. Los resultados que produce hoy no
-> sirven para tomar decisiones de consumo.
+> Las tarifas son las oficiales publicadas por el ENRE (Edenor, período 2026-07,
+> Res. ENRE 206/2026), pero **la interpretación del cuadro todavía no se validó
+> contra una factura emitida**. Verificá contra tu factura antes de tomar decisiones
+> a partir de estos números.
 
 ## Estado
 
 Prototipo temprano. Lo que hay hoy:
 
 - **Motor de cálculo** (`app/domain/`): lógica pura en TypeScript, sin dependencias
-  de React Native, con 10 casos de prueba manuales que pasan. Incluye la función
-  directa (costo de un consumo) y la inversa (cuántos kWh compra un monto).
-- **Calculadora de carga**: una pantalla donde se elige segmento, monto y consumo
-  acumulado, y se ven los kWh resultantes con el desglose por tramo.
+  de React Native, con 7 casos de prueba manuales que pasan. Calcula el costo del mes,
+  la función inversa (cuántos kWh compra un monto desde el consumo ya acumulado) y la
+  proximidad al salto de categoría.
+- **Cuadro tarifario real** de Edenor, período 2026-07 (Res. ENRE 206/2026).
+- **Calculadora de carga**: una pantalla donde se elige monto, consumo acumulado del
+  mes, mes y si se tiene subsidio, y se ven los kWh resultantes con su desglose por
+  categoría, el aviso de salto y la factura estimada del mes. La recarga está acotada
+  a los límites de MIDE, entre $1.500 y $60.000.
 - **Backend** Go + Gin: solo `GET /health`.
 - **Scraper** Python: sin implementar.
 
-Lo que falta para que sea útil de verdad: las tarifas reales. Después, la simulación
-mensual y el comparador temporal.
+Lo que falta: validar el motor contra una factura real, la simulación mensual y el
+comparador temporal.
 
 ## El problema
 
-El sistema MIDE no es intuitivo porque el precio del kWh no es fijo:
+La facturación residencial de Edenor combina dos mecanismos que tiran en direcciones
+distintas:
 
-- Existe un límite mensual de energía subsidiada; pasado ese límite, el excedente
-  se paga a precio pleno.
-- Como el límite corre contra el **acumulado del mes**, el precio marginal depende
-  de cuánto consumiste antes.
-- En consecuencia, el mismo monto rinde distinto según el momento del mes en que
-  cargues, y dos usuarios con igual consumo mensual pueden pagar distinto.
+- **La energía se cobra marginalmente.** Cada kWh se paga al precio de la categoría
+  T1-R en la que cae. Cruzar una frontera encarece los kWh siguientes, no los ya
+  consumidos.
+- **El cargo fijo lo decide la categoría en la que termina el mes.** Ese sí es
+  retroactivo, y es enorme: va de $1.710 en R1 a $63.014 en R6.
 
-Esa no linealidad es exactamente lo que el simulador intenta hacer visible.
+De ahí salen los acantilados. Un usuario sin subsidio que termina el mes en 400 kWh
+paga $65.756; si termina en 401 kWh paga $74.256. **Un kWh de más cuesta $8.499**, y
+casi todo es el cargo fijo saltando de $3.648 a $11.981. Avisar antes de que eso pase
+es la razón de ser de la app.
+
+Encima de esto, el subsidio cubre solo un **bloque base** que cambia con la estación:
+300 kWh/mes en diciembre–febrero y mayo–agosto, 150 kWh/mes en el resto. Lo que
+excede el bloque se paga a precio pleno.
+
+Y como la energía es marginal, **el consumo que ya llevás en el mes cambia cuánto
+rinde la plata**: los mismos $60.000 compran mucho menos si arrancás desde 350 kWh
+que desde cero, porque ya agotaste el bloque bonificado y empezás a comprar en
+categorías más caras.
 
 ## Cómo funciona el cálculo
 
-El consumo no se evalúa aislado sino sobre el intervalo que va del acumulado del
-mes al acumulado más la carga nueva. Ese intervalo se parte entre el tramo
-subsidiado y el excedente:
+El consumo se recorre por tramos de precio homogéneo, cortando en cada frontera de
+categoría y en el fin del bloque base:
 
 ```
-energiaSubsidiada = max(0, min(limiteSegmento - acumulado, consumo))
-energiaPlena      = consumo - energiaSubsidiada
+precio(kwh) = kwh < bloqueBase ? precioBase(categoria(kwh))
+                               : precioSinSubsidio(categoria(kwh))
 
-costo = energiaSubsidiada * precioSubsidiado + energiaPlena * precioPleno
+costoEnergia = suma de cada tramo * su precio
+total        = costoEnergia + cargoFijo(categoria del consumo final)
 ```
 
-El detalle completo está en [`docs/calculoKWH.md`](docs/calculoKWH.md) (fórmula y
-función inversa) y [`docs/implementaciones.md`](docs/implementaciones.md) (modelo de
-datos y reglas congeladas). El producto está descrito en
-[`docs/idea.md`](docs/idea.md).
+La función inversa recorre esos mismos tramos gastando el monto hasta agotarlo,
+partiendo del consumo acumulado del mes.
+
+> [!NOTE]
+> Que la energía sea marginal y no retroactiva es una **interpretación**, todavía sin
+> validar contra una factura ni un ticket de recarga. El cuadro tarifario, leído
+> literalmente, sugiere que la categoría fija el precio de todo el mes; si eso fuera
+> así, los acantilados serían aún más grandes.
+
+El producto está descrito en [`docs/idea.md`](docs/idea.md). Los documentos
+[`docs/calculoKWH.md`](docs/calculoKWH.md) y
+[`docs/implementaciones.md`](docs/implementaciones.md) describen un modelo anterior
+de tramos progresivos que resultó no ser el que usa Edenor; se conservan como
+registro del razonamiento, pero el modelo vigente es el de arriba.
 
 ## Estructura
 
 ```
 ├── app/                  frontend React Native + Expo (TypeScript strict)
 │   ├── domain/           motor de cálculo — TypeScript puro, testeable aislado
-│   │   ├── types.ts        Segmento, Tramo, Tarifa, resultados
-│   │   ├── tarifas.ts      JSON de tarifas versionado (hoy, valores de ejemplo)
-│   │   ├── calculadora.ts  calcularCosto(), calcularCostoMensual(), calcularKwh()
-│   │   └── casos.ts        10 casos de prueba manuales
+│   │   ├── types.ts        Categoria, CuadroTarifario, resultados
+│   │   ├── tarifas.ts      cuadro real del ENRE + bloque base estacional
+│   │   ├── calculadora.ts  calcularMes(), proximidadAlSalto(), calcularKwh()
+│   │   └── casos.ts        7 casos de prueba manuales
 │   ├── screens/          pantallas (calculadora de carga)
 │   └── store/            estado (zustand) y validación (zod)
 ├── backend/              API Go + Gin — opcional, servirá las tarifas
@@ -114,11 +141,15 @@ go run ./cmd/api          # :8080, GET /health
 
 ## Roadmap
 
-- Tarifas reales del ENRE, validadas contra facturas o cargas MIDE reales.
-- Factor de ajuste MIDE, calibrado empíricamente (hoy está en 0).
-- Simulación mensual y comparador temporal: cuánto rinde la misma carga según el día
-  del mes en que se hace.
-- Scraper del ENRE con validación, y `GET /tarifas` en el backend.
+- Validar el motor contra una factura real de Edenor o un ticket de recarga: es lo
+  único que confirma si la energía se cobra marginalmente, como asume el modelo, o si
+  la categoría reprecia el mes entero.
+- Confirmar si los niveles N2 y N3 tienen bonificaciones distintas — el cuadro del
+  ENRE publica una sola columna "con subsidio".
+- Simulación mensual y comparador temporal: cuánto rinde la misma carga según el
+  momento del mes.
+- Scraper del ENRE con validación, y `GET /tarifas` en el backend, para que el cuadro
+  no haya que transcribirlo a mano cada vez que cambia.
 
 ## Licencia
 

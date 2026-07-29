@@ -106,7 +106,12 @@ API y el manejo de errores/timeout se documentan acá.
 
 ## Pendiente de definir
 
-- Tarifas reales del ENRE: las de `app/domain/tarifas.ts` son valores de ejemplo, y
-  el factor de ajuste MIDE (α) está en 0 hasta calibrarlo contra cargas reales.
+- Validación del motor contra una factura real o un ticket de recarga:
+  `app/domain/tarifas.ts` tiene el cuadro oficial del ENRE, pero el modelo asume que
+  la energía se cobra **marginalmente** (cada kWh al precio de su categoría) y eso
+  todavía no se contrastó. Leído literalmente, el cuadro sugiere que la categoría
+  fija el precio de todo el mes.
+- Si N2 y N3 tienen bonificaciones distintas: el cuadro del ENRE publica una sola
+  columna "con subsidio", así que el modelo hoy distingue solo con y sin subsidio.
 - Endpoints reales del backend más allá de `/health`.
 - Lógica del scraper.
