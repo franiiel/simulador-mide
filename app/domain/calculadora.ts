@@ -1,122 +1,234 @@
+import { bloqueBaseKwh, categoriaPara, CUADRO_EDENOR } from './tarifas';
 import type {
-  DetalleTramo,
-  ResultadoCalculo,
+  CuadroTarifario,
+  Mes,
+  ProximidadSalto,
   ResultadoInverso,
   ResultadoMensual,
-  Tarifa,
+  TramoConsumido,
 } from './types';
 
-// Regla de redondeo congelada: se calcula en flotante y se redondea solo en los
-// valores de salida — la plata a 2 decimales, los kWh a 2 decimales.
+// Regla de redondeo congelada: se calcula en flotante y se redondea a 2 decimales
+// solo en los valores de salida.
 function redondear2(valor: number): number {
   return Math.round(valor * 100) / 100;
 }
 
+export type OpcionesCalculo = {
+  mes: Mes;
+  conSubsidio: boolean;
+  cuadro?: CuadroTarifario;
+};
+
 /**
- * Calcula el costo de un consumo nuevo dado el acumulado del mes (calculoKWH.md §2-§6).
- * El acumulado importa porque los tramos se aplican sobre el total mensual: el consumo
- * nuevo entra en los tramos a partir de donde quedó el acumulado.
- *
- * Devuelve solo energía. El cargo fijo es mensual y no se cobra por carga; para el total
- * del mes, ver calcularCostoMensual().
+ * Puntos donde cambia el precio del kWh: las fronteras de categoría y, si hay
+ * subsidio, el fin del bloque base bonificado.
  */
-export function calcularCosto(
-  consumoKwh: number,
-  tarifa: Tarifa,
-  acumuladoMesKwh = 0,
-): ResultadoCalculo {
+function fronteras(opciones: OpcionesCalculo): number[] {
+  const cuadro = opciones.cuadro ?? CUADRO_EDENOR;
+  const puntos = new Set<number>([0]);
+  for (const fila of cuadro.categorias) {
+    if (fila.hastaKwh !== null) {
+      puntos.add(fila.hastaKwh);
+    }
+  }
+  if (opciones.conSubsidio) {
+    puntos.add(bloqueBaseKwh(opciones.mes));
+  }
+  return [...puntos].sort((a, b) => a - b);
+}
+
+/** Precio del kWh que está justo por encima de `kwh`. */
+function precioEn(kwh: number, opciones: OpcionesCalculo): { precio: number; bonificado: boolean } {
+  const cuadro = opciones.cuadro ?? CUADRO_EDENOR;
+  // Se evalúa un pelo por encima del borde: el kWh 400,5 pertenece a R2, el 400,5+
+  // de un tramo que empieza en 400 pertenece a R3.
+  const fila = categoriaPara(kwh + 1e-9, cuadro);
+  const bloqueBase = opciones.conSubsidio ? bloqueBaseKwh(opciones.mes) : 0;
+  const bonificado = kwh < bloqueBase;
+  return { precio: bonificado ? fila.precioBase : fila.precioSinSubsidio, bonificado };
+}
+
+/**
+ * Descompone el consumo entre `desdeKwh` y `hastaKwh` en tramos de precio homogéneo.
+ * La energía es marginal: cada kWh se paga al precio de la categoría en la que cae.
+ */
+function tramosEntre(
+  desdeKwh: number,
+  hastaKwh: number,
+  opciones: OpcionesCalculo,
+): TramoConsumido[] {
+  const cuadro = opciones.cuadro ?? CUADRO_EDENOR;
+  const cortes = fronteras(opciones).filter((p) => p > desdeKwh && p < hastaKwh);
+  const bordes = [desdeKwh, ...cortes, hastaKwh];
+
+  const tramos: TramoConsumido[] = [];
+  for (let i = 0; i < bordes.length - 1; i++) {
+    const desde = bordes[i];
+    const hasta = bordes[i + 1];
+    const kwh = hasta - desde;
+    if (kwh <= 0) {
+      continue;
+    }
+    const { precio, bonificado } = precioEn(desde, opciones);
+    tramos.push({
+      desdeKwh: desde,
+      hastaKwh: hasta,
+      kwh: redondear2(kwh),
+      categoria: categoriaPara(desde + 1e-9, cuadro).categoria,
+      bonificado,
+      precioKwh: precio,
+      subtotal: redondear2(kwh * precio),
+    });
+  }
+  return tramos;
+}
+
+function costoEnergia(desdeKwh: number, hastaKwh: number, opciones: OpcionesCalculo): number {
+  let total = 0;
+  for (const t of tramosEntre(desdeKwh, hastaKwh, opciones)) {
+    total += t.kwh * t.precioKwh;
+  }
+  return total;
+}
+
+/**
+ * Costo del mes completo: la energía consumida de forma marginal más el cargo fijo,
+ * que lo fija la categoría en la que termina el mes.
+ */
+export function calcularMes(consumoKwh: number, opciones: OpcionesCalculo): ResultadoMensual {
   if (consumoKwh < 0) {
     throw new Error(`Consumo negativo: ${consumoKwh}`);
   }
-  if (acumuladoMesKwh < 0) {
-    throw new Error(`Acumulado mensual negativo: ${acumuladoMesKwh}`);
-  }
 
-  const desdeTotal = acumuladoMesKwh;
-  const hastaTotal = acumuladoMesKwh + consumoKwh;
-
-  const detalle: DetalleTramo[] = [];
-  let costoEnergia = 0;
-
-  for (const tramo of tarifa.tramos) {
-    const inicio = Math.max(desdeTotal, tramo.desdeKwh);
-    const fin = tramo.hastaKwh === null ? hastaTotal : Math.min(hastaTotal, tramo.hastaKwh);
-    const kwhEnTramo = fin - inicio;
-    if (kwhEnTramo <= 0) {
-      continue;
-    }
-    const subtotal = kwhEnTramo * tramo.precioKwh;
-    costoEnergia += subtotal;
-    detalle.push({ tramo, kwhEnTramo, subtotal: redondear2(subtotal) });
-  }
+  const cuadro = opciones.cuadro ?? CUADRO_EDENOR;
+  const filaFinal = categoriaPara(consumoKwh, cuadro);
+  const tramos = tramosEntre(0, consumoKwh, opciones);
+  const energia = tramos.reduce((acc, t) => acc + t.kwh * t.precioKwh, 0);
 
   return {
     consumoKwh,
-    costoEnergia: redondear2(costoEnergia),
-    costoReal: redondear2(costoEnergia * (1 + tarifa.factorAjusteMide)),
-    detalle,
+    categoriaFinal: filaFinal.categoria,
+    cargoFijo: filaFinal.cargoFijo,
+    bloqueBaseKwh: opciones.conSubsidio ? bloqueBaseKwh(opciones.mes) : 0,
+    costoEnergia: redondear2(energia),
+    total: redondear2(energia + filaFinal.cargoFijo),
+    tramos,
   };
 }
 
 /**
- * Costo del mes completo (calculoKWH.md §7): energía de todo el acumulado más el cargo
- * fijo, que se suma una sola vez por mes y no por carga.
+ * Cuánto falta para que el mes termine una categoría más arriba y cuánto cuesta eso.
+ *
+ * El grueso del salto no es el precio del kWh que cruza sino el cargo fijo, que se
+ * recalcula entero por la categoría final del mes.
  */
-export function calcularCostoMensual(consumoMesKwh: number, tarifa: Tarifa): ResultadoMensual {
-  const energia = calcularCosto(consumoMesKwh, tarifa, 0);
+export function proximidadAlSalto(consumoKwh: number, opciones: OpcionesCalculo): ProximidadSalto {
+  const cuadro = opciones.cuadro ?? CUADRO_EDENOR;
+  const actual = calcularMes(consumoKwh, opciones);
+  const fila = categoriaPara(consumoKwh, cuadro);
+
+  if (fila.hastaKwh === null) {
+    return {
+      categoriaActual: actual.categoriaFinal,
+      categoriaSiguiente: null,
+      kwhHastaElSalto: null,
+      totalActual: actual.total,
+      totalTrasElSalto: null,
+      saltoTotal: null,
+      saltoCargoFijo: null,
+    };
+  }
+
+  const trasElSalto = calcularMes(fila.hastaKwh + 1, opciones);
 
   return {
-    consumoKwh: energia.consumoKwh,
-    costoEnergia: energia.costoEnergia,
-    costoReal: energia.costoReal,
-    cargoFijo: tarifa.cargoFijo,
-    total: redondear2(energia.costoReal + tarifa.cargoFijo),
-    detalle: energia.detalle,
+    categoriaActual: actual.categoriaFinal,
+    categoriaSiguiente: trasElSalto.categoriaFinal,
+    kwhHastaElSalto: redondear2(fila.hastaKwh - consumoKwh),
+    totalActual: actual.total,
+    totalTrasElSalto: trasElSalto.total,
+    saltoTotal: redondear2(trasElSalto.total - actual.total),
+    saltoCargoFijo: redondear2(trasElSalto.cargoFijo - actual.cargoFijo),
   };
 }
 
 /**
- * Función inversa (calculoKWH.md §8): cuántos kWh compra un monto, dado el acumulado
- * del mes. Generaliza los tres casos del documento a N tramos recorriéndolos en orden
- * y gastando el dinero hasta agotarlo.
+ * Función inversa: cuántos kWh compra un monto, partiendo del consumo ya acumulado
+ * en el mes. El acumulado importa porque define desde qué categoría se empieza a
+ * comprar.
+ *
+ * El monto compra energía; el cargo fijo del mes es un cargo aparte y no se descuenta
+ * de la recarga.
  */
-export function calcularKwh(monto: number, tarifa: Tarifa, acumuladoMesKwh = 0): ResultadoInverso {
+export function calcularKwh(
+  monto: number,
+  opciones: OpcionesCalculo,
+  acumuladoKwh = 0,
+): ResultadoInverso {
   if (monto < 0) {
     throw new Error(`Monto negativo: ${monto}`);
   }
-  if (acumuladoMesKwh < 0) {
-    throw new Error(`Acumulado mensual negativo: ${acumuladoMesKwh}`);
+  if (acumuladoKwh < 0) {
+    throw new Error(`Consumo acumulado negativo: ${acumuladoKwh}`);
   }
 
-  // El ajuste se descuenta antes de comprar energía: como costoReal = costoEnergia * (1+α),
-  // el monto compra a precio de tarifa solo lo que queda después de sacarle el α.
-  let restante = monto / (1 + tarifa.factorAjusteMide);
+  const cuadro = opciones.cuadro ?? CUADRO_EDENOR;
+  const cortes = fronteras(opciones).filter((p) => p > acumuladoKwh);
 
-  const detalle: DetalleTramo[] = [];
-  let kwh = 0;
-  let posicion = acumuladoMesKwh;
+  const tramos: TramoConsumido[] = [];
+  let restante = monto;
+  let posicion = acumuladoKwh;
 
-  for (const tramo of tarifa.tramos) {
+  // Se van llenando los tramos completos que el dinero pueda pagar; en el último se
+  // compra solo lo que alcance.
+  for (const corte of [...cortes, Infinity]) {
     if (restante <= 0) {
       break;
     }
-    // Tramos que quedaron atrás por el acumulado.
-    if (tramo.hastaKwh !== null && tramo.hastaKwh <= posicion) {
+    const { precio, bonificado } = precioEn(posicion, opciones);
+    const capacidad = corte - posicion;
+    const costoCompleto = capacidad * precio;
+    const kwh = restante >= costoCompleto ? capacidad : restante / precio;
+    if (kwh <= 0) {
       continue;
     }
 
-    const inicio = Math.max(posicion, tramo.desdeKwh);
-    const capacidad = tramo.hastaKwh === null ? Infinity : tramo.hastaKwh - inicio;
-    const costoCompleto = capacidad * tramo.precioKwh;
+    const subtotal = kwh * precio;
+    tramos.push({
+      desdeKwh: posicion,
+      hastaKwh: posicion + kwh,
+      kwh: redondear2(kwh),
+      categoria: categoriaPara(posicion + 1e-9, cuadro).categoria,
+      bonificado,
+      precioKwh: precio,
+      subtotal: redondear2(subtotal),
+    });
 
-    const kwhEnTramo = restante >= costoCompleto ? capacidad : restante / tramo.precioKwh;
-    const subtotal = kwhEnTramo * tramo.precioKwh;
-
-    kwh += kwhEnTramo;
     restante -= subtotal;
-    posicion = inicio + kwhEnTramo;
-    detalle.push({ tramo, kwhEnTramo: redondear2(kwhEnTramo), subtotal: redondear2(subtotal) });
+    posicion += kwh;
   }
 
-  return { monto, kwh: redondear2(kwh), detalle };
+  const comprados = posicion - acumuladoKwh;
+  return {
+    monto,
+    acumuladoPrevioKwh: acumuladoKwh,
+    kwhComprados: redondear2(comprados),
+    consumoFinalKwh: redondear2(posicion),
+    categoriaFinal: categoriaPara(posicion, cuadro).categoria,
+    tramos,
+  };
 }
+
+/** Costo de sumar `deltaKwh` al consumo del mes, incluido el cambio de cargo fijo. */
+export function costoIncremental(
+  acumuladoKwh: number,
+  deltaKwh: number,
+  opciones: OpcionesCalculo,
+): number {
+  const antes = calcularMes(acumuladoKwh, opciones);
+  const despues = calcularMes(acumuladoKwh + deltaKwh, opciones);
+  return redondear2(despues.total - antes.total);
+}
+
+export { costoEnergia };
