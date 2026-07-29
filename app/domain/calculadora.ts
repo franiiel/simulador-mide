@@ -17,7 +17,7 @@ function redondear2(valor: number): number {
 export function calcularCosto(
   consumoKwh: number,
   tarifa: Tarifa,
-  acumuladoMesKwh = 0
+  acumuladoMesKwh = 0,
 ): ResultadoCalculo {
   if (consumoKwh < 0) {
     throw new Error(`Consumo negativo: ${consumoKwh}`);

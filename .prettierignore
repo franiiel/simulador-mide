@@ -1,0 +1,4 @@
+# Generado por pnpm: reformatearlo rompe el lockfile
+app/pnpm-lock.yaml
+
+app/assets

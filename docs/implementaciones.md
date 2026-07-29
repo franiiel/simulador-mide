@@ -8,28 +8,28 @@ Entidades mínimas
 type Segmento = 'N1' | 'N2' | 'N3'; // sin subsidio, bajos ingresos, medios
 
 type Tramo = {
-  desdeKwh: number;
-  hastaKwh: number | null; // null = infinito
-  precioKwh: number;
+desdeKwh: number;
+hastaKwh: number | null; // null = infinito
+precioKwh: number;
 };
 
 type Tarifa = {
-  segmento: Segmento;
-  cargoFijo: number;
-  tramos: Tramo[];
-  fechaVigencia: string;
+segmento: Segmento;
+cargoFijo: number;
+tramos: Tramo[];
+fechaVigencia: string;
 };
 
 type ResultadoCalculo = {
-  consumoKwh: number;
-  costoEnergia: number;
-  cargoFijo: number;
-  total: number;
-  detalle: {
-    tramo: Tramo;
-    kwhEnTramo: number;
-    subtotal: number;
-  }[];
+consumoKwh: number;
+costoEnergia: number;
+cargoFijo: number;
+total: number;
+detalle: {
+tramo: Tramo;
+kwhEnTramo: number;
+subtotal: number;
+}[];
 };
 Reglas que tenés que congelar
 Subsidio por bloque (N2/N3)
@@ -49,32 +49,31 @@ Si no fijás esto ahora, después no vas a poder validar contra valores reales d
 No lo dejes como algo “libre”. Versionalo.
 
 {
-  "version": "2026-07",
-  "distribuidora": "edenor",
-  "tarifas": [
-    {
-      "segmento": "N2",
-      "cargoFijo": 1200,
-      "tramos": [
-        { "desdeKwh": 0, "hastaKwh": 350, "precioKwh": 80 },
-        { "desdeKwh": 350, "hastaKwh": null, "precioKwh": 200 }
-      ]
-    }
-  ]
+"version": "2026-07",
+"distribuidora": "edenor",
+"tarifas": [
+{
+"segmento": "N2",
+"cargoFijo": 1200,
+"tramos": [
+{ "desdeKwh": 0, "hastaKwh": 350, "precioKwh": 80 },
+{ "desdeKwh": 350, "hastaKwh": null, "precioKwh": 200 }
+]
+}
+]
 }
 Claves importantes
 version → para invalidar caché en app
 fechaVigencia → para histórico (importante si simulás meses pasados)
-No mezclar Edenor/Edesur en el mismo archivo
-3. Motor desacoplado (bien hecho)
+No mezclar Edenor/Edesur en el mismo archivo 3. Motor desacoplado (bien hecho)
 
 Ubicación:
 
 app/
-  └── domain/
-        ├── tarifas.ts
-        ├── calculadora.ts
-        └── types.ts
+└── domain/
+├── tarifas.ts
+├── calculadora.ts
+└── types.ts
 
 Regla clave:
 sin React, sin Expo, sin fetch, sin estado global
@@ -82,8 +81,7 @@ sin React, sin Expo, sin fetch, sin estado global
 Esto te permite:
 
 testear con Jest o Vitest más adelante
-reutilizar en backend si querés (port a Go)
-4. Backend (Go + Gin) — diseño mínimo correcto
+reutilizar en backend si querés (port a Go) 4. Backend (Go + Gin) — diseño mínimo correcto
 
 Cuando lo actives, evitá hacerlo “genérico”.
 
@@ -93,9 +91,9 @@ GET /tarifas?distribuidora=edenor
 Respuesta:
 
 {
-  "version": "2026-07",
-  "urlDescarga": "...",
-  "checksum": "sha256..."
+"version": "2026-07",
+"urlDescarga": "...",
+"checksum": "sha256..."
 }
 
 Después:
@@ -104,8 +102,7 @@ GET /tarifas/2026-07.json
 Por qué así
 Evitás bajar datos innecesarios
 Podés cachear agresivamente en cliente
-Podés validar integridad
-5. Scraper (Python)
+Podés validar integridad 5. Scraper (Python)
 
 No lo pienses como “scrapear HTML y listo”. Eso se rompe.
 
@@ -116,13 +113,13 @@ Resoluciones oficiales → scraping estructurado
 HTML Edenor → menos confiable
 Pipeline correcto
 Fuente (ENRE/PDF)
-   ↓
+↓
 Parser estructurado
-   ↓
+↓
 Normalización (tu schema JSON)
-   ↓
+↓
 Validación (tests)
-   ↓
+↓
 Output versionado
 
 Si no metés validación, vas a romper el cálculo sin darte cuenta.
@@ -137,9 +134,9 @@ Eso implica que tu app necesita:
 
 Estado del usuario
 type EstadoUsuario = {
-  consumoAcumuladoMes: number;
-  fechaInicioPeriodo: Date;
-  segmento: Segmento;
+consumoAcumuladoMes: number;
+fechaInicioPeriodo: Date;
+segmento: Segmento;
 };
 Y simulación temporal
 
@@ -164,14 +161,12 @@ Para tu caso:
 
 Elegí último SDK estable de Expo SDK
 Usá TypeScript strict (correcto ya)
-No agregues navegación hasta necesitarla (bien planteado)
-8. Riesgos técnicos que deberías evitar
+No agregues navegación hasta necesitarla (bien planteado) 8. Riesgos técnicos que deberías evitar
 ❌ Hardcodear tarifas sin versionado
 ❌ No modelar subsidios explícitamente
 ❌ Mezclar UI con lógica de cálculo
 ❌ No validar contra casos reales (facturas o MIDE real)
-❌ Suponer que el scraper siempre va a funcionar
-9. Siguiente paso concreto
+❌ Suponer que el scraper siempre va a funcionar 9. Siguiente paso concreto
 
 No sigas con backend ni scraper todavía.
 

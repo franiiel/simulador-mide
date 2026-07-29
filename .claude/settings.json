@@ -2,7 +2,7 @@
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   },
-   "permissions": {
+  "permissions": {
     "allow": [
       "Bash(go build *)",
       "Bash(go vet *)",
@@ -10,10 +10,23 @@
       "Bash(go fmt *)",
       "Bash(gofmt *)",
       "Bash(npx expo-doctor)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(app/node_modules/.bin/prettier *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/format-file.js",
+            "timeout": 30,
+            "statusMessage": "Formateando con Prettier..."
+          }
+        ]
+      }
     ]
   }
 }
-
- 
-
