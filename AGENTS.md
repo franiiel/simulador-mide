@@ -43,14 +43,19 @@ El flujo de datos importa para entender el diseño: los precios por tramo que co
 **se derivan** del cuadro T1-R del ENRE, no se copian de los comprobantes. Los tickets son
 el set de validación. Ver el README para la fórmula.
 
-El backend Go+Gin es opcional: cuando exista, expondrá `GET /tarifas` para que la app
-actualice los cuadros cuando haya conexión. El scraper Python los alimenta de forma batch
-desde el índice público del ENRE:
+El scraper (`scraper/main.py`, Python con `uv`) baja los cuadros del índice público del ENRE
+y los emite en `scraper/cuadros.json`:
 
 ```
-Scraper (Python) → cuadros del ENRE → backend (Go+Gin) → app (React Native)
-                                     ↘ (o directo, embebido) ↗
+Scraper (Python) → cuadros.json → app (React Native)
 ```
+
+**El backend Go no está en ese camino.** Hoy tiene solo `/health` y no hace falta: para
+servir un archivo que cambia una vez al mes alcanza publicarlo estático. Cuando se encare la
+actualización remota —necesaria para no republicar en Play Store cada vez que cambia una
+tarifa— va a ser un GitHub Action con cron que corre el scraper y commitea el JSON, más la
+app leyéndolo y cacheándolo con el JSON embebido como fallback offline. El backend recién
+tendría sentido con features con estado (cuentas, histórico de consumo, notificaciones).
 
 Ninguno de los dos (`backend/`, `scraper/`) es necesario para el MVP; están
 scaffoldeados para no bloquear cuando se necesiten.
