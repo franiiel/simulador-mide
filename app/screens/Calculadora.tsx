@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { calcularRecarga, proximidadAlSalto } from '../domain/calculadora';
-import { TARIFA_VIGENTE, topeEscalera } from '../domain/tarifas';
+import { tarifaVigente, topeEscalera } from '../domain/tarifas';
+import type { TarifaMide } from '../domain/types';
 import { RECARGA_MAXIMA, RECARGA_MINIMA, TOPE_TASA_MUNICIPAL_KWH } from '../domain/types';
 import { useSimulacion, validarAcumulado, validarMonto } from '../store/useSimulacion';
 
@@ -24,11 +25,11 @@ const precioFmt = new Intl.NumberFormat('es-AR', {
 });
 
 /** Calcula la recarga y devuelve el error si el acumulado cae fuera de la escalera. */
-function simular(monto: number, acumulado: number) {
+function simular(monto: number, acumulado: number, tarifa: TarifaMide) {
   try {
     return {
-      recarga: calcularRecarga(monto, acumulado),
-      salto: proximidadAlSalto(acumulado),
+      recarga: calcularRecarga(monto, acumulado, tarifa),
+      salto: proximidadAlSalto(acumulado, tarifa),
       error: null,
     };
   } catch (e) {
@@ -39,22 +40,25 @@ function simular(monto: number, acumulado: number) {
 export function Calculadora() {
   const { montoTexto, acumuladoTexto, setMontoTexto, setAcumuladoTexto } = useSimulacion();
 
+  // La tarifa se pasa explícita a todo el motor en vez de dejar que caiga en su default: los
+  // cuadros se reemplazan en runtime y así el render y el cálculo usan siempre el mismo.
+  const tarifa = tarifaVigente();
+
   const vMonto = validarMonto(montoTexto);
   const vAcumulado = validarAcumulado(acumuladoTexto);
-  const simulacion = vMonto.ok && vAcumulado.ok ? simular(vMonto.valor, vAcumulado.valor) : null;
+  const simulacion =
+    vMonto.ok && vAcumulado.ok ? simular(vMonto.valor, vAcumulado.valor, tarifa) : null;
   const recarga = simulacion?.recarga;
 
   // La tasa municipal no sale del cuadro del ENRE, solo de los tickets. Si el período
   // vigente no tiene ninguno que la confirme y la recarga igual la paga, hay que decirlo.
-  const tasaSinConfirmar =
-    TARIFA_VIGENTE.tasaMunicipalHeredada && (recarga?.tasaMunicipal ?? 0) > 0;
+  const tasaSinConfirmar = tarifa.tasaMunicipalHeredada && (recarga?.tasaMunicipal ?? 0) > 0;
 
   return (
     <ScrollView style={styles.pantalla} contentContainerStyle={styles.contenido}>
       <View style={styles.fuente}>
         <Text style={styles.fuenteTexto}>
-          {TARIFA_VIGENTE.distribuidora} · nivel {TARIFA_VIGENTE.nivel} · período{' '}
-          {TARIFA_VIGENTE.periodo}
+          {tarifa.distribuidora} · nivel {tarifa.nivel} · período {tarifa.periodo}
         </Text>
         <Text style={styles.fuenteTexto}>
           Precios derivados del cuadro tarifario T1-R del ENRE
@@ -157,9 +161,9 @@ export function Calculadora() {
           {tasaSinConfirmar ? (
             <View style={styles.aviso}>
               <Text style={styles.avisoTexto}>
-                La tasa municipal ({pesos.format(TARIFA_VIGENTE.tasaMunicipalPorKwh)}/kWh bajo los{' '}
+                La tasa municipal ({pesos.format(tarifa.tasaMunicipalPorKwh)}/kWh bajo los{' '}
                 {TOPE_TASA_MUNICIPAL_KWH} kWh) no la publica el ENRE y no hay comprobante de{' '}
-                {TARIFA_VIGENTE.periodo} que la confirme: se usa la del último período conocido.
+                {tarifa.periodo} que la confirme: se usa la del último período conocido.
                 Es el único número acá que no está verificado.
               </Text>
             </View>
@@ -170,6 +174,7 @@ export function Calculadora() {
               kwhHastaElSalto={simulacion.salto.kwhHastaElSalto}
               precioSiguiente={simulacion.salto.precioSiguiente}
               variacionPorKwh={simulacion.salto.variacionPorKwh}
+              tope={topeEscalera(tarifa)}
             />
           ) : null}
         </>
@@ -187,16 +192,18 @@ function Salto({
   kwhHastaElSalto,
   precioSiguiente,
   variacionPorKwh,
+  tope,
 }: {
   kwhHastaElSalto: number;
   precioSiguiente: number | null;
   variacionPorKwh: number | null;
+  tope: number;
 }) {
   if (precioSiguiente === null || variacionPorKwh === null) {
     return (
       <View style={styles.saltoNeutro}>
         <Text style={styles.saltoTituloNeutro}>
-          Estás a {kwhFmt.format(kwhHastaElSalto)} kWh del tope de {topeEscalera()} kWh
+          Estás a {kwhFmt.format(kwhHastaElSalto)} kWh del tope de {tope} kWh
         </Text>
         <Text style={styles.saltoTextoNeutro}>
           Pasando ese acumulado no se sabe qué precio aplica: el cuadro del ENRE publica el

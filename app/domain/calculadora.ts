@@ -1,4 +1,4 @@
-import { multiplicadorImpuestos, TARIFA_VIGENTE, topeEscalera, tramoPara } from './tarifas';
+import { multiplicadorImpuestos, tarifaVigente, topeEscalera, tramoPara } from './tarifas';
 import type {
   ProximidadSalto,
   RenglonTramo,
@@ -66,7 +66,7 @@ function errorFueraDeEscalera(acumuladoKwh: number, tarifa: TarifaMide): Error {
 export function calcularRecarga(
   montoBruto: number,
   acumuladoKwh: number,
-  tarifa: TarifaMide = TARIFA_VIGENTE,
+  tarifa: TarifaMide = tarifaVigente(),
 ): ResultadoRecarga {
   if (montoBruto < 0) {
     throw new Error(`Monto negativo: ${montoBruto}`);
@@ -140,7 +140,7 @@ export function calcularRecarga(
 export function montoParaKwh(
   kwh: number,
   acumuladoKwh: number,
-  tarifa: TarifaMide = TARIFA_VIGENTE,
+  tarifa: TarifaMide = tarifaVigente(),
 ): number {
   if (kwh < 0) {
     throw new Error(`kWh negativos: ${kwh}`);
@@ -176,7 +176,7 @@ export function montoParaKwh(
  */
 export function proximidadAlSalto(
   acumuladoKwh: number,
-  tarifa: TarifaMide = TARIFA_VIGENTE,
+  tarifa: TarifaMide = tarifaVigente(),
 ): ProximidadSalto {
   const tramo = tramoPara(acumuladoKwh, tarifa);
   if (!tramo) {

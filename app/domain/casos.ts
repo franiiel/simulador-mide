@@ -10,8 +10,8 @@
 // y los importes se comparan con tolerancia porque el ticket redondea los kWh a 1 decimal.
 
 import { calcularRecarga, montoParaKwh, proximidadAlSalto } from './calculadora';
-import { CUADROS_ENRE, PERIODO_VIGENTE } from './cuadrosEnre';
-import { multiplicadorImpuestos, tarifaDe, TARIFA_VIGENTE, tramoPara } from './tarifas';
+import { CUADROS_EMBEBIDOS, cuadrosVigentes, periodoVigente } from './cuadrosEnre';
+import { multiplicadorImpuestos, tarifaDe, tarifaVigente, tramoPara } from './tarifas';
 import { RECARGA_MAXIMA, RECARGA_MINIMA, TOPES_KWH } from './types';
 
 let fallos = 0;
@@ -314,7 +314,7 @@ console.log(
 
 {
   // Los topes de la escalera son los bloques del cuadro, en todos los períodos.
-  for (const cuadro of CUADROS_ENRE) {
+  for (const cuadro of CUADROS_EMBEBIDOS) {
     assertIgual(
       `cuadro ${cuadro.periodo}`,
       'topes de bloque',
@@ -334,11 +334,12 @@ console.log(
 
   // El período vigente quedó completo: los 6 tramos tienen precio, incluidos los 4 que
   // ningún ticket de julio prueba.
-  assertIgual('vigente', 'tramos con precio', TARIFA_VIGENTE.tramos.length, 6);
+  const vigente = tarifaVigente();
+  assertIgual('vigente', 'tramos con precio', vigente.tramos.length, 6);
   assertIgual(
     'vigente',
     'todos los precios son finitos',
-    TARIFA_VIGENTE.tramos.every((x) => Number.isFinite(x.precioKwh) && x.precioKwh > 0),
+    vigente.tramos.every((x) => Number.isFinite(x.precioKwh) && x.precioKwh > 0),
     true,
   );
 
@@ -350,22 +351,28 @@ console.log(
 // ---------------------------------------------------------------------------
 //
 // cuadrosEnre.json trae los tres niveles de cada período y cuadroDe() busca solo por período,
-// así que CUADROS_ENRE tiene que venir filtrado a Edenor N2. Si ese filtro se rompiera, el
-// motor calcularía con la tarifa sin subsidio sin que nada falle.
+// así que los cuadros activos tienen que venir filtrados a Edenor N2. Si ese filtro se
+// rompiera, el motor calcularía con la tarifa sin subsidio sin que nada falle.
 
 {
-  assertIgual('filtro', 'un solo nivel', [...new Set(CUADROS_ENRE.map((c) => c.nivel))].join(), 'N2');
+  const activos = cuadrosVigentes();
+  assertIgual('filtro', 'un solo nivel', [...new Set(activos.map((c) => c.nivel))].join(), 'N2');
   assertIgual(
     'filtro',
     'una sola distribuidora',
-    [...new Set(CUADROS_ENRE.map((c) => c.distribuidora))].join(),
+    [...new Set(activos.map((c) => c.distribuidora))].join(),
     'edenor',
   );
 
-  const periodos = CUADROS_ENRE.map((c) => c.periodo);
+  const periodos = activos.map((c) => c.periodo);
   assertIgual('filtro', 'un cuadro por período', periodos.length, new Set(periodos).size);
   assertIgual('filtro', 'ordenados por período', periodos.join(), [...periodos].sort().join());
-  assertIgual('filtro', 'el vigente es el último', PERIODO_VIGENTE, periodos[periodos.length - 1]);
+  assertIgual(
+    'filtro',
+    'el vigente es el último',
+    periodoVigente(),
+    periodos[periodos.length - 1],
+  );
 
   // El discriminante: en los tramos altos N1 y N2 dan lo mismo (el consumo base ya está
   // agotado y el excedente se cobra a precio pleno), así que solo los tramos bajos delatan si
@@ -378,7 +385,7 @@ console.log(
     0.001,
   );
 
-  console.log(`✓ Caso 3: el JSON queda filtrado a Edenor N2 (${CUADROS_ENRE.length} períodos)`);
+  console.log(`✓ Caso 3: el JSON queda filtrado a Edenor N2 (${activos.length} períodos)`);
 }
 
 // ---------------------------------------------------------------------------
