@@ -1,118 +1,145 @@
 # Simulador de consumo MIDE (Edenor)
 
-Simulador del sistema prepago **MIDE** de Edenor: estima cuántos kWh rinde una
-carga de dinero según el subsidio del segmento, los tramos tarifarios y el consumo
-ya acumulado en el mes.
+Simulador del sistema prepago **MIDE** de Edenor: calcula cuántos kWh acredita una
+recarga, según los tramos de precio que atraviese tu consumo acumulado del mes y los
+impuestos que salen del monto.
 
 La pregunta que busca responder no es "cuánto sale el kWh", sino:
 
-> ¿Cuántos kWh me da $60.000 **hoy**? ¿Me conviene cargar ahora o esperar?
+> ¿Cuántos kWh me da $50.000 **hoy**?
 
 > [!IMPORTANT]
 > Proyecto personal, **sin relación ni afiliación con Edenor ni con el ENRE**. No es
 > la aplicación oficial de MIDE.
->
-> Las tarifas son las oficiales publicadas por el ENRE (Edenor, período 2026-07,
-> Res. ENRE 206/2026), pero **la interpretación del cuadro todavía no se validó
-> contra una factura emitida**. Verificá contra tu factura antes de tomar decisiones
-> a partir de estos números.
 
 ## Estado
 
-Prototipo temprano. Lo que hay hoy:
+Prototipo funcional. Lo que hay hoy:
 
-- **Motor de cálculo** (`app/domain/`): lógica pura en TypeScript, sin dependencias
-  de React Native, con 7 casos de prueba manuales que pasan. Calcula el costo del mes,
-  la función inversa (cuántos kWh compra un monto desde el consumo ya acumulado) y la
-  proximidad al salto de categoría.
-- **Cuadro tarifario real** de Edenor, período 2026-07 (Res. ENRE 206/2026).
-- **Calculadora de carga**: una pantalla donde se elige monto, consumo acumulado del
-  mes, mes y si se tiene subsidio, y se ven los kWh resultantes con su desglose por
-  categoría, el aviso de salto y la factura estimada del mes. La recarga está acotada
-  a los límites de MIDE, entre $1.500 y $60.000.
+- **Motor de cálculo** (`app/domain/`): lógica pura en TypeScript, sin dependencias de
+  React Native. Reproduce **11 comprobantes reales** de 7 períodos tarifarios distintos.
+- **Precios derivados del cuadro tarifario T1-R del ENRE**, no copiados de los tickets.
+  Los comprobantes son el set de validación.
+- **Calculadora de recarga**: se ingresa el monto y el consumo acumulado del mes, y se
+  ven los kWh que se acreditan con el mismo desglose que imprime el ticket, renglón por
+  renglón. La recarga está acotada a los límites de MIDE, entre $1.500 y $60.000.
 - **Backend** Go + Gin: solo `GET /health`.
-- **Scraper** Python: sin implementar.
-
-Lo que falta: validar el motor contra una factura real, la simulación mensual y el
-comparador temporal.
+- **Scraper** Python: sin implementar. Es lo que automatizaría la carga de cuadros nuevos.
 
 ## El problema
 
-La facturación residencial de Edenor combina dos mecanismos que tiran en direcciones
-distintas:
+En MIDE no hay factura: se recarga un monto, el medidor acredita kWh y cuando llegan a
+cero se corta el servicio. Tres cosas hacen la cuenta poco intuitiva:
 
-- **La energía se cobra marginalmente.** Cada kWh se paga al precio de la categoría
-  T1-R en la que cae. Cruzar una frontera encarece los kWh siguientes, no los ya
-  consumidos.
-- **El cargo fijo lo decide la categoría en la que termina el mes.** Ese sí es
-  retroactivo, y es enorme: va de $1.710 en R1 a $63.014 en R6.
+**1. El monto que recargás es bruto.** Los impuestos salen de arriba y solo el resto
+compra energía. Hay además una "Tasa Municipal" que también sale del monto:
 
-De ahí salen los acantilados. Un usuario sin subsidio que termina el mes en 400 kWh
-paga $65.756; si termina en 401 kWh paga $74.256. **Un kWh de más cuesta $8.499**, y
-casi todo es el cargo fijo saltando de $3.648 a $11.981. Avisar antes de que eso pase
-es la razón de ser de la app.
+```
+Subtotal A (energía) + Subtotal B (impuestos) + Tasa Municipal = COMPRA ACTUAL
+```
 
-Encima de esto, el subsidio cubre solo un **bloque base** que cambia con la estación:
-300 kWh/mes en diciembre–febrero y mayo–agosto, 150 kWh/mes en el resto. Lo que
-excede el bloque se paga a precio pleno.
+De cada $100 que cargás, unos $78,50 compran kWh.
 
-Y como la energía es marginal, **el consumo que ya llevás en el mes cambia cuánto
-rinde la plata**: los mismos $60.000 compran mucho menos si arrancás desde 350 kWh
-que desde cero, porque ya agotaste el bloque bonificado y empezás a comprar en
-categorías más caras.
+**2. El precio se cobra en escalera** sobre el consumo acumulado del mes, que se resetea
+todos los meses. Una recarga que cruza un tope se parte y el ticket imprime un renglón
+por tramo. Los topes son **150 / 400 / 500 / 600 / 700 / 1400 kWh**.
+
+**3. La escalera no es monótona.** Sube hasta los 700 kWh y después baja fuerte:
+
+| Tramo (2026-07) | $/kWh |
+| --------------- | ------- |
+| ≤150            | 80,708  |
+| ≤400            | 112,283 |
+| ≤500            | 296,497 |
+| ≤600            | 261,417 |
+| ≤700            | 385,080 |
+| ≤1400           | 233,477 |
+
+O sea que **cruzar los 700 kWh acumulados abarata el kWh**, no lo encarece. La causa está
+en el punto siguiente.
 
 ## Cómo funciona el cálculo
 
-El consumo se recorre por tramos de precio homogéneo, cortando en cada frontera de
-categoría y en el fin del bloque base:
+Los precios de la escalera no son un dato del ticket: se **derivan** del cuadro tarifario
+T1-R que publica el ENRE. La regla es el costo marginal de la factura que MIDE no emite,
+entre topes de bloque:
 
 ```
-precio(kwh) = kwh < bloqueBase ? precioBase(categoria(kwh))
-                               : precioSinSubsidio(categoria(kwh))
+Costo(C) = cargoFijo(bloque) + varBase × mín(C, consumoBase)
+                             + varExcedente × máx(0, C − consumoBase)
 
-costoEnergia = suma de cada tramo * su precio
-total        = costoEnergia + cargoFijo(categoria del consumo final)
+precio(tramo) = [Costo(tope) − Costo(topeAnterior)] / (tope − topeAnterior)
 ```
 
-La función inversa recorre esos mismos tramos gastando el monto hasta agotarlo,
-partiendo del consumo acumulado del mes.
+Ahí está la explicación de la escalera no monótona: el cargo fijo del cuadro salta mucho
+entre bloques (en 2026-07 va de $3.648 a $11.981 a $40.400), y al repartirse sobre 100 kWh
+de ancho infla el precio de los tramos del medio. En el ≤1400 se reparte sobre 700 kWh, y
+por eso vuelve a bajar.
+
+El `consumoBase` es estacional: 300 kWh en dic-feb y may-ago, 150 kWh en mar-abr y sep-nov.
+El régimen anterior a 2026 usaba 350 fijo. Ese parámetro es el que explica que el tramo
+≤400 casi se duplicara entre dic/25 y mar/26.
+
+Sobre la energía se aplican los impuestos, y por debajo de los 600 kWh acumulados se suma
+la tasa municipal por kWh. **No hay cargo fijo cobrado aparte**: en los comprobantes los
+subtotales C y D son siempre cero — está prorrateado dentro de los precios.
+
+### Verificación
+
+La derivación se validó contra **17 tramos de 7 períodos** y tres regímenes de consumo
+base distintos. Los precios coinciden con los impresos dentro del último dígito que el
+ticket muestra (el milésimo), y también coinciden los importes en pesos de cada renglón:
+
+```
+Ticket 58348 (dic/25), renglón 1:  150,0 kWh × $61,675 = $9.251,25
+Fórmula:                           1.383,00 + 52,455 × 150 = $9.251,25
+```
 
 > [!NOTE]
-> Que la energía sea marginal y no retroactiva es una **interpretación**, todavía sin
-> validar contra una factura ni un ticket de recarga. El cuadro tarifario, leído
-> literalmente, sugiere que la categoría fija el precio de todo el mes; si eso fuera
-> así, los acantilados serían aún más grandes.
+> Lo único que queda sin resolver es el tramo de **arriba de 1400 kWh**. El cuadro publica
+> el último bloque como "+700" sin techo, y MIDE lo trata como si el tope fuera 1400 —así
+> lo imprime el ticket—, pero ningún comprobante cruzó ese acumulado (el más alto visto es
+> 1336,8). Con un acumulado mayor la app **falla a propósito** en vez de extrapolar.
+>
+> La otra pieza no verificada es la **tasa municipal**, que el ENRE no publica porque es un
+> cargo del municipio: solo se conoce por los tickets, y el período vigente no tiene
+> ninguno que la confirme. La app avisa cuando la está heredando de un período anterior.
 
-El producto está descrito en [`docs/idea.md`](docs/idea.md). Los documentos
-[`docs/calculoKWH.md`](docs/calculoKWH.md) y
-[`docs/implementaciones.md`](docs/implementaciones.md) describen un modelo anterior
-de tramos progresivos que resultó no ser el que usa Edenor; se conservan como
-registro del razonamiento, pero el modelo vigente es el de arriba.
+Los documentos [`docs/calculoKWH.md`](docs/calculoKWH.md) y
+[`docs/implementaciones.md`](docs/implementaciones.md) describen modelos anteriores —tramos
+progresivos primero, categorías con cargo fijo después— que los comprobantes desmintieron.
+Se conservan como registro del razonamiento; no son especificación. La historia de cómo se
+llegó al modelo vigente está en [`docs/bitacora.md`](docs/bitacora.md), y el producto en
+[`docs/idea.md`](docs/idea.md).
 
 ## Estructura
 
 ```
 ├── app/                  frontend React Native + Expo (TypeScript strict)
 │   ├── domain/           motor de cálculo — TypeScript puro, testeable aislado
-│   │   ├── types.ts        Categoria, CuadroTarifario, resultados
-│   │   ├── tarifas.ts      cuadro real del ENRE + bloque base estacional
-│   │   ├── calculadora.ts  calcularMes(), proximidadAlSalto(), calcularKwh()
-│   │   └── casos.ts        7 casos de prueba manuales
+│   │   ├── types.ts         CuadroEnre, TarifaMide, ResultadoRecarga
+│   │   ├── cuadrosEnre.ts   cuadros T1-R del ENRE por período (los datos)
+│   │   ├── tarifas.ts       costoFactura(), precioTramo() — la derivación
+│   │   ├── calculadora.ts   calcularRecarga(), proximidadAlSalto(), montoParaKwh()
+│   │   └── casos.ts         11 comprobantes reales + casos estructurales
 │   ├── screens/          pantallas (calculadora de carga)
 │   └── store/            estado (zustand) y validación (zod)
-├── backend/              API Go + Gin — opcional, servirá las tarifas
-├── scraper/              extracción de tarifas del ENRE (Python) — sin implementar
+├── backend/              API Go + Gin — opcional, servirá los cuadros
+├── scraper/              extracción de cuadros del ENRE (Python) — sin implementar
 └── docs/                 documentación de producto y del modelo de cálculo
 ```
 
-El MVP calcula **100% en el cliente**, con las tarifas embebidas: la app funciona
-sin conexión y no depende del backend. Cuando el backend exista de verdad, servirá
-tarifas actualizadas alimentadas por el scraper:
+El MVP calcula **100% en el cliente**, con los cuadros embebidos: la app funciona sin
+conexión y no depende del backend. Cuando el backend exista, servirá cuadros actualizados
+alimentados por el scraper:
 
 ```
-Scraper (Python) → JSON de tarifas → backend (Go + Gin) → app (React Native)
-                                   ↘   (o embebido)    ↗
+Scraper (Python) → cuadros del ENRE → backend (Go + Gin) → app (React Native)
+                                    ↘    (o embebido)    ↗
 ```
+
+Los cuadros están en el índice público del ENRE
+(`enre.gov.ar/web/tarifasd.nsf/todoscuadros?openview`), un documento por período.
 
 ## Correrlo
 
@@ -129,7 +156,7 @@ El motor de cálculo se puede ejercitar sin levantar la app:
 ```bash
 cd app
 npx tsc --noEmit          # typecheck
-npx tsx domain/casos.ts   # corre los 3 casos de prueba
+npx tsx domain/casos.ts   # corre los casos de prueba
 ```
 
 Backend (opcional, no hace falta para la app):
@@ -141,15 +168,16 @@ go run ./cmd/api          # :8080, GET /health
 
 ## Roadmap
 
-- Validar el motor contra una factura real de Edenor o un ticket de recarga: es lo
-  único que confirma si la energía se cobra marginalmente, como asume el modelo, o si
-  la categoría reprecia el mes entero.
-- Confirmar si los niveles N2 y N3 tienen bonificaciones distintas — el cuadro del
-  ENRE publica una sola columna "con subsidio".
-- Simulación mensual y comparador temporal: cuánto rinde la misma carga según el
-  momento del mes.
-- Scraper del ENRE con validación, y `GET /tarifas` en el backend, para que el cuadro
-  no haya que transcribirlo a mano cada vez que cambia.
+- **El tramo de arriba de 1400 kWh**, lo único que el motor no sabe calcular. Hace falta un
+  comprobante de una recarga hecha con ese acumulado.
+- **Confirmar la tasa municipal del período vigente** con un comprobante que compre por
+  debajo de 600 kWh acumulados.
+- **Scraper del ENRE**: hoy los cuadros se cargan a mano. Automatizarlo mantendría la app
+  al día sin tocar código.
+- **Niveles N1 y N3**: el cuadro los publica, así que la derivación ya los cubriría. Solo
+  falta cargarlos y poder elegir el nivel.
+- Simulación temporal: cuánto duran los kWh según el ritmo de consumo, y avisar cuándo
+  conviene esperar antes de recargar.
 
 ## Licencia
 
