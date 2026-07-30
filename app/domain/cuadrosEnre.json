@@ -1,0 +1,3512 @@
+[
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 67.826,
+        "cargoVariableExcedente": 67.826,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 68.128,
+        "cargoVariableExcedente": 68.128,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 73.73,
+        "cargoVariableExcedente": 73.73,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 75.552,
+        "cargoVariableExcedente": 75.552,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 79.586,
+        "cargoVariableExcedente": 79.586,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 81.741,
+        "cargoVariableExcedente": 81.741,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE A1156ADAD7CCAF2403258B1600610F62",
+    "nivel": "N1",
+    "periodo": "2024-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 12.219,
+        "cargoVariableExcedente": 12.219,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 12.521,
+        "cargoVariableExcedente": 12.521,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 18.122,
+        "cargoVariableExcedente": 18.122,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 19.945,
+        "cargoVariableExcedente": 19.945,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 23.979,
+        "cargoVariableExcedente": 23.979,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 26.134,
+        "cargoVariableExcedente": 26.134,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE A1156ADAD7CCAF2403258B1600610F62",
+    "nivel": "N2",
+    "periodo": "2024-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 13.096,
+        "cargoVariableExcedente": 13.096,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 13.399,
+        "cargoVariableExcedente": 13.399,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 19.0,
+        "cargoVariableExcedente": 73.73,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 20.822,
+        "cargoVariableExcedente": 75.552,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 24.856,
+        "cargoVariableExcedente": 79.59,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 27.011,
+        "cargoVariableExcedente": 81.741,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 400,
+    "distribuidora": "edenor",
+    "fuente": "ENRE A1156ADAD7CCAF2403258B1600610F62",
+    "nivel": "N3",
+    "periodo": "2024-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 67.826,
+        "cargoVariableExcedente": 67.826,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 68.128,
+        "cargoVariableExcedente": 68.128,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 73.73,
+        "cargoVariableExcedente": 73.73,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 75.552,
+        "cargoVariableExcedente": 75.552,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 79.586,
+        "cargoVariableExcedente": 79.586,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 81.741,
+        "cargoVariableExcedente": 81.741,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE ADCAED739343CCB603258AEE00751550",
+    "nivel": "N1",
+    "periodo": "2024-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 12.219,
+        "cargoVariableExcedente": 12.219,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 12.521,
+        "cargoVariableExcedente": 12.521,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 18.122,
+        "cargoVariableExcedente": 18.122,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 19.945,
+        "cargoVariableExcedente": 19.945,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 23.979,
+        "cargoVariableExcedente": 23.979,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 26.134,
+        "cargoVariableExcedente": 26.134,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE ADCAED739343CCB603258AEE00751550",
+    "nivel": "N2",
+    "periodo": "2024-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 13.096,
+        "cargoVariableExcedente": 13.096,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 13.399,
+        "cargoVariableExcedente": 13.399,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 19.0,
+        "cargoVariableExcedente": 73.73,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 20.822,
+        "cargoVariableExcedente": 75.552,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 24.856,
+        "cargoVariableExcedente": 79.59,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 27.011,
+        "cargoVariableExcedente": 81.741,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 400,
+    "distribuidora": "edenor",
+    "fuente": "ENRE ADCAED739343CCB603258AEE00751550",
+    "nivel": "N3",
+    "periodo": "2024-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 83.639,
+        "cargoVariableExcedente": 83.639,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 83.942,
+        "cargoVariableExcedente": 83.942,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 89.543,
+        "cargoVariableExcedente": 89.543,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 91.366,
+        "cargoVariableExcedente": 91.366,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 95.4,
+        "cargoVariableExcedente": 95.4,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 97.554,
+        "cargoVariableExcedente": 97.554,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2F273F47EDF6C22703258B510066BBAD",
+    "nivel": "N1",
+    "periodo": "2024-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 31.594,
+        "cargoVariableExcedente": 31.594,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 31.897,
+        "cargoVariableExcedente": 83.942,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 37.498,
+        "cargoVariableExcedente": 89.543,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 39.321,
+        "cargoVariableExcedente": 91.366,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 43.355,
+        "cargoVariableExcedente": 95.4,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 45.509,
+        "cargoVariableExcedente": 97.554,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2F273F47EDF6C22703258B510066BBAD",
+    "nivel": "N2",
+    "periodo": "2024-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 43.158,
+        "cargoVariableExcedente": 43.158,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 43.461,
+        "cargoVariableExcedente": 83.942,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 49.062,
+        "cargoVariableExcedente": 89.543,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 50.885,
+        "cargoVariableExcedente": 91.366,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 54.919,
+        "cargoVariableExcedente": 95.4,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 57.073,
+        "cargoVariableExcedente": 97.554,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2F273F47EDF6C22703258B510066BBAD",
+    "nivel": "N3",
+    "periodo": "2024-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 83.639,
+        "cargoVariableExcedente": 83.639,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 83.942,
+        "cargoVariableExcedente": 83.942,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 89.543,
+        "cargoVariableExcedente": 89.543,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 91.366,
+        "cargoVariableExcedente": 91.366,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 95.4,
+        "cargoVariableExcedente": 95.4,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 97.554,
+        "cargoVariableExcedente": 97.554,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 7EDB51E77C52603603258B34007067B0",
+    "nivel": "N1",
+    "periodo": "2024-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 31.594,
+        "cargoVariableExcedente": 31.594,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 31.897,
+        "cargoVariableExcedente": 83.942,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 37.498,
+        "cargoVariableExcedente": 89.543,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 39.321,
+        "cargoVariableExcedente": 91.366,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 43.355,
+        "cargoVariableExcedente": 95.4,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 45.509,
+        "cargoVariableExcedente": 97.554,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 7EDB51E77C52603603258B34007067B0",
+    "nivel": "N2",
+    "periodo": "2024-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 791.27,
+        "cargoVariableBase": 43.158,
+        "cargoVariableExcedente": 43.158,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1687.65,
+        "cargoVariableBase": 43.461,
+        "cargoVariableExcedente": 83.942,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5818.97,
+        "cargoVariableBase": 49.062,
+        "cargoVariableExcedente": 89.543,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9309.04,
+        "cargoVariableBase": 50.885,
+        "cargoVariableExcedente": 91.366,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 24526.03,
+        "cargoVariableBase": 54.919,
+        "cargoVariableExcedente": 95.4,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 28923.74,
+        "cargoVariableBase": 57.073,
+        "cargoVariableExcedente": 97.554,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 7EDB51E77C52603603258B34007067B0",
+    "nivel": "N3",
+    "periodo": "2024-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 815.01,
+        "cargoVariableBase": 87.365,
+        "cargoVariableExcedente": 87.365,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1738.28,
+        "cargoVariableBase": 87.677,
+        "cargoVariableExcedente": 87.677,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5993.54,
+        "cargoVariableBase": 93.446,
+        "cargoVariableExcedente": 93.446,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9588.31,
+        "cargoVariableBase": 95.323,
+        "cargoVariableExcedente": 95.323,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 25261.81,
+        "cargoVariableBase": 99.478,
+        "cargoVariableExcedente": 99.478,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 29791.45,
+        "cargoVariableBase": 101.697,
+        "cargoVariableExcedente": 101.697,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 73BB68C18656CB4103258B890061AA7F",
+    "nivel": "N1",
+    "periodo": "2024-08"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 815.01,
+        "cargoVariableBase": 32.925,
+        "cargoVariableExcedente": 32.925,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1738.28,
+        "cargoVariableBase": 33.237,
+        "cargoVariableExcedente": 87.677,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5993.54,
+        "cargoVariableBase": 39.006,
+        "cargoVariableExcedente": 93.446,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9588.31,
+        "cargoVariableBase": 40.884,
+        "cargoVariableExcedente": 95.323,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 25261.81,
+        "cargoVariableBase": 45.039,
+        "cargoVariableExcedente": 99.478,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 29791.45,
+        "cargoVariableBase": 47.258,
+        "cargoVariableExcedente": 101.697,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 73BB68C18656CB4103258B890061AA7F",
+    "nivel": "N2",
+    "periodo": "2024-08"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 815.01,
+        "cargoVariableBase": 45.021,
+        "cargoVariableExcedente": 45.021,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1738.28,
+        "cargoVariableBase": 45.333,
+        "cargoVariableExcedente": 87.677,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 5993.54,
+        "cargoVariableBase": 51.102,
+        "cargoVariableExcedente": 93.446,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9588.31,
+        "cargoVariableBase": 52.98,
+        "cargoVariableExcedente": 95.323,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 25261.81,
+        "cargoVariableBase": 57.135,
+        "cargoVariableExcedente": 99.48,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 29791.45,
+        "cargoVariableBase": 59.354,
+        "cargoVariableExcedente": 101.697,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 73BB68C18656CB4103258B890061AA7F",
+    "nivel": "N3",
+    "periodo": "2024-08"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 839.46,
+        "cargoVariableBase": 91.562,
+        "cargoVariableExcedente": 91.562,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1790.43,
+        "cargoVariableBase": 91.883,
+        "cargoVariableExcedente": 91.883,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6173.35,
+        "cargoVariableBase": 97.825,
+        "cargoVariableExcedente": 97.825,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9875.96,
+        "cargoVariableBase": 99.759,
+        "cargoVariableExcedente": 99.759,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 26019.66,
+        "cargoVariableBase": 104.038,
+        "cargoVariableExcedente": 104.038,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 30685.19,
+        "cargoVariableBase": 106.324,
+        "cargoVariableExcedente": 106.324,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE DAA2AF6CFBBE511103258B6D00683806",
+    "nivel": "N1",
+    "periodo": "2024-09"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 839.46,
+        "cargoVariableBase": 34.401,
+        "cargoVariableExcedente": 34.401,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1790.43,
+        "cargoVariableBase": 34.722,
+        "cargoVariableExcedente": 91.883,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6173.35,
+        "cargoVariableBase": 40.664,
+        "cargoVariableExcedente": 97.825,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9875.96,
+        "cargoVariableBase": 42.598,
+        "cargoVariableExcedente": 99.759,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 26019.66,
+        "cargoVariableBase": 46.877,
+        "cargoVariableExcedente": 104.038,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 30685.19,
+        "cargoVariableBase": 49.163,
+        "cargoVariableExcedente": 106.324,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE DAA2AF6CFBBE511103258B6D00683806",
+    "nivel": "N2",
+    "periodo": "2024-09"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 839.46,
+        "cargoVariableBase": 47.101,
+        "cargoVariableExcedente": 47.101,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1790.43,
+        "cargoVariableBase": 47.422,
+        "cargoVariableExcedente": 91.883,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6173.35,
+        "cargoVariableBase": 53.365,
+        "cargoVariableExcedente": 97.825,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 9875.96,
+        "cargoVariableBase": 55.298,
+        "cargoVariableExcedente": 99.759,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 26019.66,
+        "cargoVariableBase": 59.578,
+        "cargoVariableExcedente": 104.04,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 30685.19,
+        "cargoVariableBase": 61.864,
+        "cargoVariableExcedente": 106.324,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE DAA2AF6CFBBE511103258B6D00683806",
+    "nivel": "N3",
+    "periodo": "2024-09"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 862.12,
+        "cargoVariableBase": 94.013,
+        "cargoVariableExcedente": 94.013,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1838.77,
+        "cargoVariableBase": 94.342,
+        "cargoVariableExcedente": 94.342,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6340.03,
+        "cargoVariableBase": 100.445,
+        "cargoVariableExcedente": 100.445,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 10142.61,
+        "cargoVariableBase": 102.431,
+        "cargoVariableExcedente": 102.431,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 26722.19,
+        "cargoVariableBase": 106.826,
+        "cargoVariableExcedente": 106.826,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 31513.69,
+        "cargoVariableBase": 109.174,
+        "cargoVariableExcedente": 109.174,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2455BD7DCAC5EB0103258BC8006E71B0",
+    "nivel": "N1",
+    "periodo": "2024-10"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 862.12,
+        "cargoVariableBase": 35.308,
+        "cargoVariableExcedente": 35.308,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1838.77,
+        "cargoVariableBase": 35.638,
+        "cargoVariableExcedente": 94.342,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6340.03,
+        "cargoVariableBase": 41.74,
+        "cargoVariableExcedente": 100.445,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 10142.61,
+        "cargoVariableBase": 43.726,
+        "cargoVariableExcedente": 102.431,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 26722.19,
+        "cargoVariableBase": 48.121,
+        "cargoVariableExcedente": 106.826,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 31513.69,
+        "cargoVariableBase": 50.469,
+        "cargoVariableExcedente": 109.174,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2455BD7DCAC5EB0103258BC8006E71B0",
+    "nivel": "N2",
+    "periodo": "2024-10"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 862.12,
+        "cargoVariableBase": 48.352,
+        "cargoVariableExcedente": 48.352,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1838.77,
+        "cargoVariableBase": 48.681,
+        "cargoVariableExcedente": 94.342,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6340.03,
+        "cargoVariableBase": 54.784,
+        "cargoVariableExcedente": 100.445,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 10142.61,
+        "cargoVariableBase": 56.77,
+        "cargoVariableExcedente": 102.431,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 26722.19,
+        "cargoVariableBase": 61.165,
+        "cargoVariableExcedente": 106.83,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 31513.69,
+        "cargoVariableBase": 63.513,
+        "cargoVariableExcedente": 109.174,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2455BD7DCAC5EB0103258BC8006E71B0",
+    "nivel": "N3",
+    "periodo": "2024-10"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 913.85,
+        "cargoVariableBase": 95.401,
+        "cargoVariableExcedente": 95.401,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1949.1,
+        "cargoVariableBase": 95.75,
+        "cargoVariableExcedente": 95.75,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6720.43,
+        "cargoVariableBase": 102.219,
+        "cargoVariableExcedente": 102.219,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 10751.17,
+        "cargoVariableBase": 104.324,
+        "cargoVariableExcedente": 104.324,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28325.52,
+        "cargoVariableBase": 108.983,
+        "cargoVariableExcedente": 108.983,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 33404.52,
+        "cargoVariableBase": 111.472,
+        "cargoVariableExcedente": 111.472,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 26242C259C32D37203258BE7004A4D08",
+    "nivel": "N1",
+    "periodo": "2024-11"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 913.85,
+        "cargoVariableBase": 36.696,
+        "cargoVariableExcedente": 36.696,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1949.1,
+        "cargoVariableBase": 37.046,
+        "cargoVariableExcedente": 95.75,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6720.43,
+        "cargoVariableBase": 43.515,
+        "cargoVariableExcedente": 102.219,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 10751.17,
+        "cargoVariableBase": 45.62,
+        "cargoVariableExcedente": 104.324,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28325.52,
+        "cargoVariableBase": 50.279,
+        "cargoVariableExcedente": 108.983,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 33404.52,
+        "cargoVariableBase": 52.767,
+        "cargoVariableExcedente": 111.472,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 26242C259C32D37203258BE7004A4D08",
+    "nivel": "N2",
+    "periodo": "2024-11"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 913.85,
+        "cargoVariableBase": 49.74,
+        "cargoVariableExcedente": 49.74,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 1949.1,
+        "cargoVariableBase": 50.09,
+        "cargoVariableExcedente": 95.75,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 6720.43,
+        "cargoVariableBase": 56.558,
+        "cargoVariableExcedente": 102.219,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 10751.17,
+        "cargoVariableBase": 58.663,
+        "cargoVariableExcedente": 104.324,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28325.52,
+        "cargoVariableBase": 63.322,
+        "cargoVariableExcedente": 108.98,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 33404.52,
+        "cargoVariableBase": 65.811,
+        "cargoVariableExcedente": 111.472,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 26242C259C32D37203258BE7004A4D08",
+    "nivel": "N3",
+    "periodo": "2024-11"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 959.54,
+        "cargoVariableBase": 95.847,
+        "cargoVariableExcedente": 95.847,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2046.55,
+        "cargoVariableBase": 96.214,
+        "cargoVariableExcedente": 96.214,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7056.45,
+        "cargoVariableBase": 103.006,
+        "cargoVariableExcedente": 103.006,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 11288.73,
+        "cargoVariableBase": 105.217,
+        "cargoVariableExcedente": 105.217,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29741.8,
+        "cargoVariableBase": 110.108,
+        "cargoVariableExcedente": 110.108,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 35074.74,
+        "cargoVariableBase": 112.721,
+        "cargoVariableExcedente": 112.721,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 01DCDC180681C64103258C07006961C0",
+    "nivel": "N1",
+    "periodo": "2024-12"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 959.54,
+        "cargoVariableBase": 37.142,
+        "cargoVariableExcedente": 37.142,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2046.55,
+        "cargoVariableBase": 37.51,
+        "cargoVariableExcedente": 96.214,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7056.45,
+        "cargoVariableBase": 44.302,
+        "cargoVariableExcedente": 103.006,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 11288.73,
+        "cargoVariableBase": 46.512,
+        "cargoVariableExcedente": 105.217,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29741.8,
+        "cargoVariableBase": 51.404,
+        "cargoVariableExcedente": 110.108,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 35074.74,
+        "cargoVariableBase": 54.017,
+        "cargoVariableExcedente": 112.721,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 01DCDC180681C64103258C07006961C0",
+    "nivel": "N2",
+    "periodo": "2024-12"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 959.54,
+        "cargoVariableBase": 50.186,
+        "cargoVariableExcedente": 50.186,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2046.55,
+        "cargoVariableBase": 50.553,
+        "cargoVariableExcedente": 96.214,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7056.45,
+        "cargoVariableBase": 57.345,
+        "cargoVariableExcedente": 103.006,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 11288.73,
+        "cargoVariableBase": 59.556,
+        "cargoVariableExcedente": 105.217,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29741.8,
+        "cargoVariableBase": 64.448,
+        "cargoVariableExcedente": 110.11,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 35074.74,
+        "cargoVariableBase": 67.06,
+        "cargoVariableExcedente": 112.721,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 01DCDC180681C64103258C07006961C0",
+    "nivel": "N3",
+    "periodo": "2024-12"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 997.92,
+        "cargoVariableBase": 96.222,
+        "cargoVariableExcedente": 96.222,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2128.41,
+        "cargoVariableBase": 96.604,
+        "cargoVariableExcedente": 96.604,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7338.71,
+        "cargoVariableBase": 103.668,
+        "cargoVariableExcedente": 103.668,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 11740.28,
+        "cargoVariableBase": 105.966,
+        "cargoVariableExcedente": 105.966,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 30931.47,
+        "cargoVariableBase": 111.054,
+        "cargoVariableExcedente": 111.054,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 36477.73,
+        "cargoVariableBase": 113.771,
+        "cargoVariableExcedente": 113.771,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F1BE4D82259EA49803258C210072580D",
+    "nivel": "N1",
+    "periodo": "2025-01"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 997.92,
+        "cargoVariableBase": 37.517,
+        "cargoVariableExcedente": 37.517,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2128.41,
+        "cargoVariableBase": 37.899,
+        "cargoVariableExcedente": 96.604,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7338.71,
+        "cargoVariableBase": 44.963,
+        "cargoVariableExcedente": 103.668,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 11740.28,
+        "cargoVariableBase": 47.262,
+        "cargoVariableExcedente": 105.966,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 30931.47,
+        "cargoVariableBase": 52.349,
+        "cargoVariableExcedente": 111.054,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 36477.73,
+        "cargoVariableBase": 55.066,
+        "cargoVariableExcedente": 113.771,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F1BE4D82259EA49803258C210072580D",
+    "nivel": "N2",
+    "periodo": "2025-01"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 997.92,
+        "cargoVariableBase": 50.561,
+        "cargoVariableExcedente": 50.561,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2128.41,
+        "cargoVariableBase": 50.943,
+        "cargoVariableExcedente": 96.604,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7338.71,
+        "cargoVariableBase": 58.007,
+        "cargoVariableExcedente": 103.668,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 11740.28,
+        "cargoVariableBase": 60.305,
+        "cargoVariableExcedente": 105.966,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 30931.47,
+        "cargoVariableBase": 65.393,
+        "cargoVariableExcedente": 111.05,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 36477.73,
+        "cargoVariableBase": 68.11,
+        "cargoVariableExcedente": 113.771,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F1BE4D82259EA49803258C210072580D",
+    "nivel": "N3",
+    "periodo": "2025-01"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1037.84,
+        "cargoVariableBase": 97.663,
+        "cargoVariableExcedente": 97.663,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2213.55,
+        "cargoVariableBase": 98.06,
+        "cargoVariableExcedente": 98.06,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7632.26,
+        "cargoVariableBase": 105.407,
+        "cargoVariableExcedente": 105.407,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12209.89,
+        "cargoVariableBase": 107.798,
+        "cargoVariableExcedente": 107.798,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32168.73,
+        "cargoVariableBase": 113.089,
+        "cargoVariableExcedente": 113.089,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 37936.84,
+        "cargoVariableBase": 115.915,
+        "cargoVariableExcedente": 115.915,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE DE3AB754346EADA203258C3F0049CEEB",
+    "nivel": "N1",
+    "periodo": "2025-02"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1037.84,
+        "cargoVariableBase": 38.712,
+        "cargoVariableExcedente": 38.712,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2213.55,
+        "cargoVariableBase": 39.109,
+        "cargoVariableExcedente": 98.06,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7632.26,
+        "cargoVariableBase": 46.455,
+        "cargoVariableExcedente": 105.407,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12209.89,
+        "cargoVariableBase": 48.846,
+        "cargoVariableExcedente": 107.798,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32168.73,
+        "cargoVariableBase": 54.137,
+        "cargoVariableExcedente": 113.089,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 37936.84,
+        "cargoVariableBase": 56.963,
+        "cargoVariableExcedente": 115.915,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE DE3AB754346EADA203258C3F0049CEEB",
+    "nivel": "N2",
+    "periodo": "2025-02"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1037.84,
+        "cargoVariableBase": 51.852,
+        "cargoVariableExcedente": 51.852,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2213.55,
+        "cargoVariableBase": 52.249,
+        "cargoVariableExcedente": 98.06,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7632.26,
+        "cargoVariableBase": 59.595,
+        "cargoVariableExcedente": 105.407,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12209.89,
+        "cargoVariableBase": 61.986,
+        "cargoVariableExcedente": 107.798,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32168.73,
+        "cargoVariableBase": 67.277,
+        "cargoVariableExcedente": 113.09,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 37936.84,
+        "cargoVariableBase": 70.103,
+        "cargoVariableExcedente": 115.915,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE DE3AB754346EADA203258C3F0049CEEB",
+    "nivel": "N3",
+    "periodo": "2025-02"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1037.84,
+        "cargoVariableBase": 99.73,
+        "cargoVariableExcedente": 99.73,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2213.55,
+        "cargoVariableBase": 100.127,
+        "cargoVariableExcedente": 100.127,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7632.26,
+        "cargoVariableBase": 107.474,
+        "cargoVariableExcedente": 107.474,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12209.89,
+        "cargoVariableBase": 109.864,
+        "cargoVariableExcedente": 109.864,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32168.73,
+        "cargoVariableBase": 115.155,
+        "cargoVariableExcedente": 115.155,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 37936.84,
+        "cargoVariableBase": 117.981,
+        "cargoVariableExcedente": 117.981,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F6700E5E5B01FC1D03258C5F0072DD58",
+    "nivel": "N1",
+    "periodo": "2025-03"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1037.84,
+        "cargoVariableBase": 39.839,
+        "cargoVariableExcedente": 39.839,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2213.55,
+        "cargoVariableBase": 40.236,
+        "cargoVariableExcedente": 100.127,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7632.26,
+        "cargoVariableBase": 47.583,
+        "cargoVariableExcedente": 107.474,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12209.89,
+        "cargoVariableBase": 49.973,
+        "cargoVariableExcedente": 109.864,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32168.73,
+        "cargoVariableBase": 55.264,
+        "cargoVariableExcedente": 115.155,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 37936.84,
+        "cargoVariableBase": 58.09,
+        "cargoVariableExcedente": 117.981,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F6700E5E5B01FC1D03258C5F0072DD58",
+    "nivel": "N2",
+    "periodo": "2025-03"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1037.84,
+        "cargoVariableBase": 53.231,
+        "cargoVariableExcedente": 53.231,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2213.55,
+        "cargoVariableBase": 53.628,
+        "cargoVariableExcedente": 100.127,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7632.26,
+        "cargoVariableBase": 60.975,
+        "cargoVariableExcedente": 107.474,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12209.89,
+        "cargoVariableBase": 63.365,
+        "cargoVariableExcedente": 109.864,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32168.73,
+        "cargoVariableBase": 68.656,
+        "cargoVariableExcedente": 115.15,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 37936.84,
+        "cargoVariableBase": 71.482,
+        "cargoVariableExcedente": 117.981,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F6700E5E5B01FC1D03258C5F0072DD58",
+    "nivel": "N3",
+    "periodo": "2025-03"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1074.17,
+        "cargoVariableBase": 100.085,
+        "cargoVariableExcedente": 100.085,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2291.02,
+        "cargoVariableBase": 100.496,
+        "cargoVariableExcedente": 100.496,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7899.38,
+        "cargoVariableBase": 108.1,
+        "cargoVariableExcedente": 108.1,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12637.24,
+        "cargoVariableBase": 110.574,
+        "cargoVariableExcedente": 110.574,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 33294.64,
+        "cargoVariableBase": 116.05,
+        "cargoVariableExcedente": 116.05,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 39264.63,
+        "cargoVariableBase": 118.975,
+        "cargoVariableExcedente": 118.975,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2D51FB212317ACFF03258C7B006728B5",
+    "nivel": "N1",
+    "periodo": "2025-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1074.17,
+        "cargoVariableBase": 40.728,
+        "cargoVariableExcedente": 40.728,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2291.02,
+        "cargoVariableBase": 41.139,
+        "cargoVariableExcedente": 100.496,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7899.38,
+        "cargoVariableBase": 48.743,
+        "cargoVariableExcedente": 108.1,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12637.24,
+        "cargoVariableBase": 51.217,
+        "cargoVariableExcedente": 110.574,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 33294.64,
+        "cargoVariableBase": 56.693,
+        "cargoVariableExcedente": 116.05,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 39264.63,
+        "cargoVariableBase": 59.618,
+        "cargoVariableExcedente": 118.975,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2D51FB212317ACFF03258C7B006728B5",
+    "nivel": "N2",
+    "periodo": "2025-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1074.17,
+        "cargoVariableBase": 54.044,
+        "cargoVariableExcedente": 54.044,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2291.02,
+        "cargoVariableBase": 54.455,
+        "cargoVariableExcedente": 100.496,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 7899.38,
+        "cargoVariableBase": 62.058,
+        "cargoVariableExcedente": 108.1,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 12637.24,
+        "cargoVariableBase": 64.533,
+        "cargoVariableExcedente": 110.574,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 33294.64,
+        "cargoVariableBase": 70.009,
+        "cargoVariableExcedente": 116.05,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 39264.63,
+        "cargoVariableBase": 72.934,
+        "cargoVariableExcedente": 118.975,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 2D51FB212317ACFF03258C7B006728B5",
+    "nivel": "N3",
+    "periodo": "2025-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1161.71,
+        "cargoVariableBase": 100.607,
+        "cargoVariableExcedente": 100.607,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2477.74,
+        "cargoVariableBase": 101.031,
+        "cargoVariableExcedente": 101.031,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8136.37,
+        "cargoVariableBase": 108.862,
+        "cargoVariableExcedente": 108.862,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13016.35,
+        "cargoVariableBase": 111.411,
+        "cargoVariableExcedente": 111.411,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 27434.78,
+        "cargoVariableBase": 111.602,
+        "cargoVariableExcedente": 111.602,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 42791.72,
+        "cargoVariableBase": 121.822,
+        "cargoVariableExcedente": 121.822,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C9F60580D1AB943103258C9D0064F523",
+    "nivel": "N1",
+    "periodo": "2025-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1161.71,
+        "cargoVariableBase": 41.837,
+        "cargoVariableExcedente": 41.837,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2477.74,
+        "cargoVariableBase": 42.26,
+        "cargoVariableExcedente": 101.031,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8136.37,
+        "cargoVariableBase": 50.092,
+        "cargoVariableExcedente": 108.862,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13016.35,
+        "cargoVariableBase": 52.64,
+        "cargoVariableExcedente": 111.411,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 27434.78,
+        "cargoVariableBase": 52.831,
+        "cargoVariableExcedente": 111.602,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 42791.72,
+        "cargoVariableBase": 63.051,
+        "cargoVariableExcedente": 121.822,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C9F60580D1AB943103258C9D0064F523",
+    "nivel": "N2",
+    "periodo": "2025-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1161.71,
+        "cargoVariableBase": 55.064,
+        "cargoVariableExcedente": 55.064,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2477.74,
+        "cargoVariableBase": 55.488,
+        "cargoVariableExcedente": 101.031,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8136.37,
+        "cargoVariableBase": 63.319,
+        "cargoVariableExcedente": 108.862,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13016.35,
+        "cargoVariableBase": 65.868,
+        "cargoVariableExcedente": 111.411,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 27434.78,
+        "cargoVariableBase": 66.059,
+        "cargoVariableExcedente": 111.6,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 42791.72,
+        "cargoVariableBase": 76.279,
+        "cargoVariableExcedente": 121.822,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C9F60580D1AB943103258C9D0064F523",
+    "nivel": "N3",
+    "periodo": "2025-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1199.49,
+        "cargoVariableBase": 102.477,
+        "cargoVariableExcedente": 102.477,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2558.32,
+        "cargoVariableBase": 102.914,
+        "cargoVariableExcedente": 102.914,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8400.97,
+        "cargoVariableBase": 111.0,
+        "cargoVariableExcedente": 111.0,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13439.66,
+        "cargoVariableBase": 113.632,
+        "cargoVariableExcedente": 113.632,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28326.99,
+        "cargoVariableBase": 113.829,
+        "cargoVariableExcedente": 113.829,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 44183.35,
+        "cargoVariableBase": 124.381,
+        "cargoVariableExcedente": 124.381,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 6A184B3B22D6BEA103258CAD00647041",
+    "nivel": "N1",
+    "periodo": "2025-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1199.49,
+        "cargoVariableBase": 43.366,
+        "cargoVariableExcedente": 43.366,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2558.32,
+        "cargoVariableBase": 43.803,
+        "cargoVariableExcedente": 102.914,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8400.97,
+        "cargoVariableBase": 51.89,
+        "cargoVariableExcedente": 111.0,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13439.66,
+        "cargoVariableBase": 54.521,
+        "cargoVariableExcedente": 113.632,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28326.99,
+        "cargoVariableBase": 54.718,
+        "cargoVariableExcedente": 113.829,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 44183.35,
+        "cargoVariableBase": 65.271,
+        "cargoVariableExcedente": 124.381,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 6A184B3B22D6BEA103258CAD00647041",
+    "nivel": "N2",
+    "periodo": "2025-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1199.49,
+        "cargoVariableBase": 56.715,
+        "cargoVariableExcedente": 56.715,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2558.32,
+        "cargoVariableBase": 57.152,
+        "cargoVariableExcedente": 102.914,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8400.97,
+        "cargoVariableBase": 65.238,
+        "cargoVariableExcedente": 111.0,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13439.66,
+        "cargoVariableBase": 67.87,
+        "cargoVariableExcedente": 113.632,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28326.99,
+        "cargoVariableBase": 68.067,
+        "cargoVariableExcedente": 113.83,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 44183.35,
+        "cargoVariableBase": 78.619,
+        "cargoVariableExcedente": 124.381,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 6A184B3B22D6BEA103258CAD00647041",
+    "nivel": "N3",
+    "periodo": "2025-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1208.44,
+        "cargoVariableBase": 104.047,
+        "cargoVariableExcedente": 104.047,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2577.41,
+        "cargoVariableBase": 104.488,
+        "cargoVariableExcedente": 104.488,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8463.65,
+        "cargoVariableBase": 112.634,
+        "cargoVariableExcedente": 112.634,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13539.93,
+        "cargoVariableBase": 115.285,
+        "cargoVariableExcedente": 115.285,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28538.33,
+        "cargoVariableBase": 115.484,
+        "cargoVariableExcedente": 115.484,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 44512.99,
+        "cargoVariableBase": 126.115,
+        "cargoVariableExcedente": 126.115,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C0F2A084C99F0FC903258CD700499568",
+    "nivel": "N1",
+    "periodo": "2025-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1208.44,
+        "cargoVariableBase": 44.697,
+        "cargoVariableExcedente": 44.697,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2577.41,
+        "cargoVariableBase": 45.137,
+        "cargoVariableExcedente": 104.488,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8463.65,
+        "cargoVariableBase": 53.284,
+        "cargoVariableExcedente": 112.634,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13539.93,
+        "cargoVariableBase": 55.935,
+        "cargoVariableExcedente": 115.285,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28538.33,
+        "cargoVariableBase": 56.134,
+        "cargoVariableExcedente": 115.484,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 44512.99,
+        "cargoVariableBase": 66.764,
+        "cargoVariableExcedente": 126.115,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C0F2A084C99F0FC903258CD700499568",
+    "nivel": "N2",
+    "periodo": "2025-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1208.44,
+        "cargoVariableBase": 58.152,
+        "cargoVariableExcedente": 58.152,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2577.41,
+        "cargoVariableBase": 58.592,
+        "cargoVariableExcedente": 104.488,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8463.65,
+        "cargoVariableBase": 66.739,
+        "cargoVariableExcedente": 112.634,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13539.93,
+        "cargoVariableBase": 69.39,
+        "cargoVariableExcedente": 115.285,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 28538.33,
+        "cargoVariableBase": 69.589,
+        "cargoVariableExcedente": 115.48,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 44512.99,
+        "cargoVariableBase": 80.22,
+        "cargoVariableExcedente": 126.115,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C0F2A084C99F0FC903258CD700499568",
+    "nivel": "N3",
+    "periodo": "2025-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1233.42,
+        "cargoVariableBase": 104.832,
+        "cargoVariableExcedente": 104.832,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2630.7,
+        "cargoVariableBase": 105.282,
+        "cargoVariableExcedente": 105.282,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8638.63,
+        "cargoVariableBase": 113.597,
+        "cargoVariableExcedente": 113.597,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13819.86,
+        "cargoVariableBase": 116.303,
+        "cargoVariableExcedente": 116.303,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29128.34,
+        "cargoVariableBase": 116.505,
+        "cargoVariableExcedente": 116.505,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 45433.27,
+        "cargoVariableBase": 127.356,
+        "cargoVariableExcedente": 127.356,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 42FC6FF7FE9FE92703258CF80060547F",
+    "nivel": "N1",
+    "periodo": "2025-08"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1233.42,
+        "cargoVariableBase": 45.795,
+        "cargoVariableExcedente": 45.795,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2630.7,
+        "cargoVariableBase": 46.245,
+        "cargoVariableExcedente": 105.282,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8638.63,
+        "cargoVariableBase": 54.56,
+        "cargoVariableExcedente": 113.597,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13819.86,
+        "cargoVariableBase": 57.265,
+        "cargoVariableExcedente": 116.303,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29128.34,
+        "cargoVariableBase": 57.468,
+        "cargoVariableExcedente": 116.505,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 45433.27,
+        "cargoVariableBase": 68.319,
+        "cargoVariableExcedente": 127.356,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 42FC6FF7FE9FE92703258CF80060547F",
+    "nivel": "N2",
+    "periodo": "2025-08"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1233.42,
+        "cargoVariableBase": 59.225,
+        "cargoVariableExcedente": 59.225,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2630.7,
+        "cargoVariableBase": 59.675,
+        "cargoVariableExcedente": 105.282,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8638.63,
+        "cargoVariableBase": 67.99,
+        "cargoVariableExcedente": 113.597,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 13819.86,
+        "cargoVariableBase": 70.696,
+        "cargoVariableExcedente": 116.303,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29128.34,
+        "cargoVariableBase": 70.899,
+        "cargoVariableExcedente": 116.5,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 45433.27,
+        "cargoVariableBase": 81.749,
+        "cargoVariableExcedente": 127.356,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 42FC6FF7FE9FE92703258CF80060547F",
+    "nivel": "N3",
+    "periodo": "2025-08"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1270.01,
+        "cargoVariableBase": 105.375,
+        "cargoVariableExcedente": 105.375,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2708.72,
+        "cargoVariableBase": 105.838,
+        "cargoVariableExcedente": 105.838,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8894.85,
+        "cargoVariableBase": 114.4,
+        "cargoVariableExcedente": 114.4,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 14229.76,
+        "cargoVariableBase": 117.186,
+        "cargoVariableExcedente": 117.186,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29992.3,
+        "cargoVariableBase": 117.395,
+        "cargoVariableExcedente": 117.395,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 46780.83,
+        "cargoVariableBase": 128.567,
+        "cargoVariableExcedente": 128.567,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE AE089215892DBD7403258D150070FE7F",
+    "nivel": "N1",
+    "periodo": "2025-09"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1270.01,
+        "cargoVariableBase": 47.094,
+        "cargoVariableExcedente": 47.094,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2708.72,
+        "cargoVariableBase": 47.556,
+        "cargoVariableExcedente": 105.838,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8894.85,
+        "cargoVariableBase": 56.118,
+        "cargoVariableExcedente": 114.4,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 14229.76,
+        "cargoVariableBase": 58.904,
+        "cargoVariableExcedente": 117.186,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29992.3,
+        "cargoVariableBase": 59.113,
+        "cargoVariableExcedente": 117.395,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 46780.83,
+        "cargoVariableBase": 70.286,
+        "cargoVariableExcedente": 128.567,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE AE089215892DBD7403258D150070FE7F",
+    "nivel": "N2",
+    "periodo": "2025-09"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1270.01,
+        "cargoVariableBase": 60.399,
+        "cargoVariableExcedente": 60.399,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2708.72,
+        "cargoVariableBase": 60.861,
+        "cargoVariableExcedente": 105.838,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 8894.85,
+        "cargoVariableBase": 69.423,
+        "cargoVariableExcedente": 114.4,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 14229.76,
+        "cargoVariableBase": 72.209,
+        "cargoVariableExcedente": 117.186,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 29992.3,
+        "cargoVariableBase": 72.418,
+        "cargoVariableExcedente": 117.39,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 46780.83,
+        "cargoVariableBase": 83.591,
+        "cargoVariableExcedente": 128.567,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE AE089215892DBD7403258D150070FE7F",
+    "nivel": "N3",
+    "periodo": "2025-09"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1309.77,
+        "cargoVariableBase": 106.063,
+        "cargoVariableExcedente": 106.063,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2793.53,
+        "cargoVariableBase": 106.54,
+        "cargoVariableExcedente": 106.54,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9173.35,
+        "cargoVariableBase": 115.37,
+        "cargoVariableExcedente": 115.37,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 14675.29,
+        "cargoVariableBase": 118.244,
+        "cargoVariableExcedente": 118.244,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 30931.35,
+        "cargoVariableBase": 118.459,
+        "cargoVariableExcedente": 118.459,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 48245.53,
+        "cargoVariableBase": 129.981,
+        "cargoVariableExcedente": 129.981,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C24A219DFDD5C6E503258D33005078EC",
+    "nivel": "N1",
+    "periodo": "2025-10"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1309.77,
+        "cargoVariableBase": 48.458,
+        "cargoVariableExcedente": 48.458,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2793.53,
+        "cargoVariableBase": 48.935,
+        "cargoVariableExcedente": 106.54,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9173.35,
+        "cargoVariableBase": 57.765,
+        "cargoVariableExcedente": 115.37,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 14675.29,
+        "cargoVariableBase": 60.638,
+        "cargoVariableExcedente": 118.244,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 30931.35,
+        "cargoVariableBase": 60.853,
+        "cargoVariableExcedente": 118.459,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 48245.53,
+        "cargoVariableBase": 72.376,
+        "cargoVariableExcedente": 129.981,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C24A219DFDD5C6E503258D33005078EC",
+    "nivel": "N2",
+    "periodo": "2025-10"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1309.77,
+        "cargoVariableBase": 61.655,
+        "cargoVariableExcedente": 61.655,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2793.53,
+        "cargoVariableBase": 62.132,
+        "cargoVariableExcedente": 106.54,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9173.35,
+        "cargoVariableBase": 70.962,
+        "cargoVariableExcedente": 115.37,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 14675.29,
+        "cargoVariableBase": 73.835,
+        "cargoVariableExcedente": 118.244,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 30931.35,
+        "cargoVariableBase": 74.051,
+        "cargoVariableExcedente": 118.46,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 48245.53,
+        "cargoVariableBase": 85.573,
+        "cargoVariableExcedente": 129.981,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE C24A219DFDD5C6E503258D33005078EC",
+    "nivel": "N3",
+    "periodo": "2025-10"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1356.9,
+        "cargoVariableBase": 109.639,
+        "cargoVariableExcedente": 109.639,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2894.06,
+        "cargoVariableBase": 110.133,
+        "cargoVariableExcedente": 110.133,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9503.45,
+        "cargoVariableBase": 119.281,
+        "cargoVariableExcedente": 119.281,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15203.38,
+        "cargoVariableBase": 122.258,
+        "cargoVariableExcedente": 122.258,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32044.4,
+        "cargoVariableBase": 122.481,
+        "cargoVariableExcedente": 122.481,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 49981.63,
+        "cargoVariableBase": 134.418,
+        "cargoVariableExcedente": 134.418,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 26C7808800AC33C803258D4D006C2D99",
+    "nivel": "N1",
+    "periodo": "2025-11"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1356.9,
+        "cargoVariableBase": 50.594,
+        "cargoVariableExcedente": 50.594,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2894.06,
+        "cargoVariableBase": 51.089,
+        "cargoVariableExcedente": 110.133,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9503.45,
+        "cargoVariableBase": 60.236,
+        "cargoVariableExcedente": 119.281,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15203.38,
+        "cargoVariableBase": 63.213,
+        "cargoVariableExcedente": 122.258,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32044.4,
+        "cargoVariableBase": 63.436,
+        "cargoVariableExcedente": 122.481,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 49981.63,
+        "cargoVariableBase": 75.373,
+        "cargoVariableExcedente": 134.418,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 26C7808800AC33C803258D4D006C2D99",
+    "nivel": "N2",
+    "periodo": "2025-11"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1356.9,
+        "cargoVariableBase": 64.17,
+        "cargoVariableExcedente": 64.17,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2894.06,
+        "cargoVariableBase": 64.665,
+        "cargoVariableExcedente": 110.133,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9503.45,
+        "cargoVariableBase": 73.812,
+        "cargoVariableExcedente": 119.281,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15203.38,
+        "cargoVariableBase": 76.789,
+        "cargoVariableExcedente": 122.258,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32044.4,
+        "cargoVariableBase": 77.012,
+        "cargoVariableExcedente": 122.48,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 49981.63,
+        "cargoVariableBase": 88.949,
+        "cargoVariableExcedente": 134.418,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 26C7808800AC33C803258D4D006C2D99",
+    "nivel": "N3",
+    "periodo": "2025-11"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1383.0,
+        "cargoVariableBase": 112.302,
+        "cargoVariableExcedente": 112.302,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2949.73,
+        "cargoVariableBase": 112.806,
+        "cargoVariableExcedente": 112.806,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9686.25,
+        "cargoVariableBase": 122.129,
+        "cargoVariableExcedente": 122.129,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15495.83,
+        "cargoVariableBase": 125.163,
+        "cargoVariableExcedente": 125.163,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32660.81,
+        "cargoVariableBase": 125.391,
+        "cargoVariableExcedente": 125.391,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 50943.07,
+        "cargoVariableBase": 137.557,
+        "cargoVariableExcedente": 137.557,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 5CE52EEEC778664D03258D6F0043247F",
+    "nivel": "N1",
+    "periodo": "2025-12"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1383.0,
+        "cargoVariableBase": 52.455,
+        "cargoVariableExcedente": 52.455,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2949.73,
+        "cargoVariableBase": 52.959,
+        "cargoVariableExcedente": 112.806,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9686.25,
+        "cargoVariableBase": 62.282,
+        "cargoVariableExcedente": 122.129,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15495.83,
+        "cargoVariableBase": 65.316,
+        "cargoVariableExcedente": 125.163,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32660.81,
+        "cargoVariableBase": 65.544,
+        "cargoVariableExcedente": 125.391,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 50943.07,
+        "cargoVariableBase": 77.71,
+        "cargoVariableExcedente": 137.557,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 5CE52EEEC778664D03258D6F0043247F",
+    "nivel": "N2",
+    "periodo": "2025-12"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1383.0,
+        "cargoVariableBase": 66.266,
+        "cargoVariableExcedente": 66.266,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 2949.73,
+        "cargoVariableBase": 66.77,
+        "cargoVariableExcedente": 112.806,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9686.25,
+        "cargoVariableBase": 76.093,
+        "cargoVariableExcedente": 122.129,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15495.83,
+        "cargoVariableBase": 79.127,
+        "cargoVariableExcedente": 125.163,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 32660.81,
+        "cargoVariableBase": 79.355,
+        "cargoVariableExcedente": 125.39,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 50943.07,
+        "cargoVariableBase": 91.521,
+        "cargoVariableExcedente": 137.557,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 5CE52EEEC778664D03258D6F0043247F",
+    "nivel": "N3",
+    "periodo": "2025-12"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1414.93,
+        "cargoVariableBase": 115.282,
+        "cargoVariableExcedente": 115.282,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3017.82,
+        "cargoVariableBase": 115.798,
+        "cargoVariableExcedente": 115.798,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9909.87,
+        "cargoVariableBase": 125.337,
+        "cargoVariableExcedente": 125.337,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15853.55,
+        "cargoVariableBase": 128.441,
+        "cargoVariableExcedente": 128.441,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 33414.79,
+        "cargoVariableBase": 128.673,
+        "cargoVariableExcedente": 128.673,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 52119.11,
+        "cargoVariableBase": 141.121,
+        "cargoVariableExcedente": 141.121,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 15B31D0EAFDA9E6C03258D370044EBC5",
+    "nivel": "N1",
+    "periodo": "2026-01"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1414.93,
+        "cargoVariableBase": 53.757,
+        "cargoVariableExcedente": 53.757,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3017.82,
+        "cargoVariableBase": 54.272,
+        "cargoVariableExcedente": 115.798,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9909.87,
+        "cargoVariableBase": 63.811,
+        "cargoVariableExcedente": 125.337,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15853.55,
+        "cargoVariableBase": 66.915,
+        "cargoVariableExcedente": 128.441,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 33414.79,
+        "cargoVariableBase": 67.148,
+        "cargoVariableExcedente": 128.673,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 52119.11,
+        "cargoVariableBase": 79.595,
+        "cargoVariableExcedente": 141.121,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 350,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 15B31D0EAFDA9E6C03258D370044EBC5",
+    "nivel": "N2",
+    "periodo": "2026-01"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1414.93,
+        "cargoVariableBase": 67.955,
+        "cargoVariableExcedente": 67.955,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3017.82,
+        "cargoVariableBase": 68.471,
+        "cargoVariableExcedente": 115.798,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 9909.87,
+        "cargoVariableBase": 78.009,
+        "cargoVariableExcedente": 125.337,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 15853.55,
+        "cargoVariableBase": 81.113,
+        "cargoVariableExcedente": 128.441,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 33414.79,
+        "cargoVariableBase": 81.346,
+        "cargoVariableExcedente": 128.67,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 52119.11,
+        "cargoVariableBase": 93.794,
+        "cargoVariableExcedente": 141.121,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 250,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 15B31D0EAFDA9E6C03258D370044EBC5",
+    "nivel": "N3",
+    "periodo": "2026-01"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1457.11,
+        "cargoVariableBase": 131.619,
+        "cargoVariableExcedente": 131.619,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3107.78,
+        "cargoVariableBase": 132.15,
+        "cargoVariableExcedente": 132.15,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 10205.28,
+        "cargoVariableBase": 141.973,
+        "cargoVariableExcedente": 141.973,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 16326.14,
+        "cargoVariableBase": 145.17,
+        "cargoVariableExcedente": 145.17,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 34410.88,
+        "cargoVariableBase": 145.409,
+        "cargoVariableExcedente": 145.409,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 53672.76,
+        "cargoVariableBase": 158.228,
+        "cargoVariableExcedente": 158.228,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 8D4B34105791105403258D8F006D881C",
+    "nivel": "N1",
+    "periodo": "2026-02"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1457.11,
+        "cargoVariableBase": 51.621,
+        "cargoVariableExcedente": 51.621,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3107.78,
+        "cargoVariableBase": 52.152,
+        "cargoVariableExcedente": 132.15,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 10205.28,
+        "cargoVariableBase": 61.975,
+        "cargoVariableExcedente": 141.973,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 16326.14,
+        "cargoVariableBase": 65.172,
+        "cargoVariableExcedente": 145.17,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 34410.88,
+        "cargoVariableBase": 65.411,
+        "cargoVariableExcedente": 145.409,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 53672.76,
+        "cargoVariableBase": 78.23,
+        "cargoVariableExcedente": 158.228,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 300,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 8D4B34105791105403258D8F006D881C",
+    "nivel": "N2",
+    "periodo": "2026-02"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1493.56,
+        "cargoVariableBase": 131.987,
+        "cargoVariableExcedente": 131.987,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3185.53,
+        "cargoVariableBase": 132.532,
+        "cargoVariableExcedente": 132.532,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 10460.58,
+        "cargoVariableBase": 142.6,
+        "cargoVariableExcedente": 142.6,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 16734.58,
+        "cargoVariableBase": 145.877,
+        "cargoVariableExcedente": 145.877,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 35271.74,
+        "cargoVariableBase": 146.122,
+        "cargoVariableExcedente": 146.122,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 55015.5,
+        "cargoVariableBase": 159.262,
+        "cargoVariableExcedente": 159.262,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 7BED190C55A9DBCA03258DAF0043A06A",
+    "nivel": "N1",
+    "periodo": "2026-03"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1493.56,
+        "cargoVariableBase": 54.497,
+        "cargoVariableExcedente": 54.497,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3185.53,
+        "cargoVariableBase": 55.041,
+        "cargoVariableExcedente": 132.532,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 10460.58,
+        "cargoVariableBase": 65.11,
+        "cargoVariableExcedente": 142.6,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 16734.58,
+        "cargoVariableBase": 68.387,
+        "cargoVariableExcedente": 145.877,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 35271.74,
+        "cargoVariableBase": 68.632,
+        "cargoVariableExcedente": 146.122,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 55015.5,
+        "cargoVariableBase": 81.772,
+        "cargoVariableExcedente": 159.262,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 150,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 7BED190C55A9DBCA03258DAF0043A06A",
+    "nivel": "N2",
+    "periodo": "2026-03"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1524.17,
+        "cargoVariableBase": 132.79,
+        "cargoVariableExcedente": 132.79,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3250.82,
+        "cargoVariableBase": 133.345,
+        "cargoVariableExcedente": 133.345,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 10674.98,
+        "cargoVariableBase": 143.621,
+        "cargoVariableExcedente": 143.621,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 17077.56,
+        "cargoVariableBase": 146.964,
+        "cargoVariableExcedente": 146.964,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 35994.65,
+        "cargoVariableBase": 147.215,
+        "cargoVariableExcedente": 147.215,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 56143.07,
+        "cargoVariableBase": 160.623,
+        "cargoVariableExcedente": 160.623,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 8ED7D2B42899AACD03258DCA0072013C",
+    "nivel": "N1",
+    "periodo": "2026-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1524.17,
+        "cargoVariableBase": 57.797,
+        "cargoVariableExcedente": 57.797,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3250.82,
+        "cargoVariableBase": 58.352,
+        "cargoVariableExcedente": 133.345,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 10674.98,
+        "cargoVariableBase": 68.627,
+        "cargoVariableExcedente": 143.621,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 17077.56,
+        "cargoVariableBase": 71.971,
+        "cargoVariableExcedente": 146.964,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 35994.65,
+        "cargoVariableBase": 72.222,
+        "cargoVariableExcedente": 147.215,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 56143.07,
+        "cargoVariableBase": 85.63,
+        "cargoVariableExcedente": 160.623,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 150,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 8ED7D2B42899AACD03258DCA0072013C",
+    "nivel": "N2",
+    "periodo": "2026-04"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1586.65,
+        "cargoVariableBase": 144.321,
+        "cargoVariableExcedente": 144.321,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3384.07,
+        "cargoVariableBase": 144.899,
+        "cargoVariableExcedente": 144.899,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 11112.56,
+        "cargoVariableBase": 155.596,
+        "cargoVariableExcedente": 155.596,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 17777.59,
+        "cargoVariableBase": 159.077,
+        "cargoVariableExcedente": 159.077,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 37470.12,
+        "cargoVariableBase": 159.337,
+        "cargoVariableExcedente": 159.337,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 58444.45,
+        "cargoVariableBase": 173.296,
+        "cargoVariableExcedente": 173.296,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F1F0F1AB02E2BFB303258DED00613A84",
+    "nivel": "N1",
+    "periodo": "2026-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1586.65,
+        "cargoVariableBase": 70.863,
+        "cargoVariableExcedente": 70.863,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3384.07,
+        "cargoVariableBase": 71.441,
+        "cargoVariableExcedente": 144.899,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 11112.56,
+        "cargoVariableBase": 82.137,
+        "cargoVariableExcedente": 155.596,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 17777.59,
+        "cargoVariableBase": 85.618,
+        "cargoVariableExcedente": 159.077,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 37470.12,
+        "cargoVariableBase": 85.879,
+        "cargoVariableExcedente": 159.337,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 58444.45,
+        "cargoVariableBase": 99.837,
+        "cargoVariableExcedente": 173.296,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 300,
+    "distribuidora": "edenor",
+    "fuente": "ENRE F1F0F1AB02E2BFB303258DED00613A84",
+    "nivel": "N2",
+    "periodo": "2026-05"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1661.69,
+        "cargoVariableBase": 146.551,
+        "cargoVariableExcedente": 146.551,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3544.12,
+        "cargoVariableBase": 147.156,
+        "cargoVariableExcedente": 147.156,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 11638.12,
+        "cargoVariableBase": 158.359,
+        "cargoVariableExcedente": 158.359,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 18618.38,
+        "cargoVariableBase": 162.004,
+        "cargoVariableExcedente": 162.004,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 39242.25,
+        "cargoVariableBase": 162.277,
+        "cargoVariableExcedente": 162.277,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 61208.56,
+        "cargoVariableBase": 176.895,
+        "cargoVariableExcedente": 176.895,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 6F3030F71B1D0F9103258E060045C260",
+    "nivel": "N1",
+    "periodo": "2026-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1661.69,
+        "cargoVariableBase": 71.518,
+        "cargoVariableExcedente": 71.518,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3544.12,
+        "cargoVariableBase": 72.124,
+        "cargoVariableExcedente": 147.156,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 11638.12,
+        "cargoVariableBase": 83.326,
+        "cargoVariableExcedente": 158.359,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 18618.38,
+        "cargoVariableBase": 86.971,
+        "cargoVariableExcedente": 162.004,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 39242.25,
+        "cargoVariableBase": 87.244,
+        "cargoVariableExcedente": 162.277,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 61208.56,
+        "cargoVariableBase": 101.863,
+        "cargoVariableExcedente": 176.895,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 300,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 6F3030F71B1D0F9103258E060045C260",
+    "nivel": "N2",
+    "periodo": "2026-06"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1710.71,
+        "cargoVariableBase": 154.881,
+        "cargoVariableExcedente": 154.881,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3648.68,
+        "cargoVariableBase": 155.504,
+        "cargoVariableExcedente": 155.504,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 11981.48,
+        "cargoVariableBase": 167.037,
+        "cargoVariableExcedente": 167.037,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 19167.67,
+        "cargoVariableBase": 170.79,
+        "cargoVariableExcedente": 170.79,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 40400.01,
+        "cargoVariableBase": 171.071,
+        "cargoVariableExcedente": 171.071,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 63014.37,
+        "cargoVariableBase": 186.121,
+        "cargoVariableExcedente": 186.121,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 3FF0093CEC594ECF03258E2800502AFD",
+    "nivel": "N1",
+    "periodo": "2026-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1710.71,
+        "cargoVariableBase": 69.303,
+        "cargoVariableExcedente": 69.303,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3648.68,
+        "cargoVariableBase": 69.926,
+        "cargoVariableExcedente": 155.504,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 11981.48,
+        "cargoVariableBase": 81.459,
+        "cargoVariableExcedente": 167.037,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 19167.67,
+        "cargoVariableBase": 85.212,
+        "cargoVariableExcedente": 170.79,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 40400.01,
+        "cargoVariableBase": 85.493,
+        "cargoVariableExcedente": 171.071,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 63014.37,
+        "cargoVariableBase": 100.542,
+        "cargoVariableExcedente": 186.121,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 300,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 3FF0093CEC594ECF03258E2800502AFD",
+    "nivel": "N2",
+    "periodo": "2026-07"
+  }
+]

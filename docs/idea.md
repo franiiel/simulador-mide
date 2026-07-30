@@ -135,11 +135,11 @@ type Tarifa = {
 
 ---
 
-### Backend (opcional)
+### Backend — descartado
 
-- Node.js + Express
-- API de tarifas
-- Sin dependencia crítica
+Estaba planteado como una API de tarifas opcional. No se hizo: el scraper emite un JSON que
+la app embebe, así que la app no necesita ningún servicio. Ver "Por qué no hay backend" en el
+README.
 
 ---
 
@@ -190,9 +190,9 @@ Incluye:
 ## 🧩 Stack tecnológico
 
 - Frontend: React Native + Expo
-- Backend: Node.js (opcional)
 - Scraping: Python
-- Storage: JSON / SQLite
+- Storage: JSON local (los cuadros del ENRE) + AsyncStorage
+- Backend: ninguno (descartado, ver arriba)
 
 ---
 

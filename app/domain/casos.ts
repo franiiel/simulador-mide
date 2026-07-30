@@ -10,7 +10,7 @@
 // y los importes se comparan con tolerancia porque el ticket redondea los kWh a 1 decimal.
 
 import { calcularRecarga, montoParaKwh, proximidadAlSalto } from './calculadora';
-import { CUADROS_ENRE } from './cuadrosEnre';
+import { CUADROS_ENRE, PERIODO_VIGENTE } from './cuadrosEnre';
 import { multiplicadorImpuestos, tarifaDe, TARIFA_VIGENTE, tramoPara } from './tarifas';
 import { RECARGA_MAXIMA, RECARGA_MINIMA, TOPES_KWH } from './types';
 
@@ -49,16 +49,13 @@ function assertLanza(caso: string, campo: string, fn: () => unknown): void {
 }
 
 // ---------------------------------------------------------------------------
-// Los 11 comprobantes con cuadro del ENRE del mismo período
+// Los 12 comprobantes reales
 // ---------------------------------------------------------------------------
 //
 // `acumuladoPrevio` sale de restarle al "kWh Acumulados" del ticket los kWh de la compra:
 // el acumulado que imprime el papel es el de DESPUÉS de acreditar. Las cadenas cierran
 // entre tickets consecutivos (julio: 611,2 → 755,3 → 957,0 → 1125,1), que es lo que
 // confirma tanto la lectura del campo como el reseteo mensual.
-//
-// Falta el comprobante 58350 (30/10/25, tramos ≤600 y ≤700): no se consiguió el cuadro del
-// ENRE de 10/25, así que no hay con qué contrastarlo.
 
 type CasoTicket = {
   id: string;
@@ -75,6 +72,24 @@ type CasoTicket = {
 };
 
 const TICKETS: CasoTicket[] = [
+  {
+    // El caso más limpio de todos: el cuadro de 10/25 se consiguió DESPUÉS de derivar la
+    // fórmula (lo trajo el scraper), así que estos dos precios no participaron de deducirla.
+    // Que salgan exactos es una validación independiente, no un ajuste.
+    id: '58350 (30/10/25, cuadro traído por el scraper)',
+    periodo: '2025-10',
+    monto: 40000,
+    acumuladoPrevio: 577.4,
+    renglones: [
+      [600, 187.63, 22.6, 4240.44],
+      [700, 282.31, 96.0, 27096.26],
+    ],
+    subtotalA: 31336.7,
+    subtotalB: 8584.35,
+    tasaMunicipal: 78.95,
+    kwhTotal: 118.6,
+    acumuladoFinal: 696.0,
+  },
   {
     id: '58351 (nov/25, primera carga del mes, cruza 3 tramos)',
     periodo: '2025-11',
@@ -331,6 +346,42 @@ console.log(
 }
 
 // ---------------------------------------------------------------------------
+// El filtro de nivel sobre el JSON del scraper
+// ---------------------------------------------------------------------------
+//
+// cuadrosEnre.json trae los tres niveles de cada período y cuadroDe() busca solo por período,
+// así que CUADROS_ENRE tiene que venir filtrado a Edenor N2. Si ese filtro se rompiera, el
+// motor calcularía con la tarifa sin subsidio sin que nada falle.
+
+{
+  assertIgual('filtro', 'un solo nivel', [...new Set(CUADROS_ENRE.map((c) => c.nivel))].join(), 'N2');
+  assertIgual(
+    'filtro',
+    'una sola distribuidora',
+    [...new Set(CUADROS_ENRE.map((c) => c.distribuidora))].join(),
+    'edenor',
+  );
+
+  const periodos = CUADROS_ENRE.map((c) => c.periodo);
+  assertIgual('filtro', 'un cuadro por período', periodos.length, new Set(periodos).size);
+  assertIgual('filtro', 'ordenados por período', periodos.join(), [...periodos].sort().join());
+  assertIgual('filtro', 'el vigente es el último', PERIODO_VIGENTE, periodos[periodos.length - 1]);
+
+  // El discriminante: en los tramos altos N1 y N2 dan lo mismo (el consumo base ya está
+  // agotado y el excedente se cobra a precio pleno), así que solo los tramos bajos delatan si
+  // se tomó el nivel equivocado. Con el cuadro N1 de jul/26 el ≤150 daría 166,286.
+  assertCerca(
+    'filtro',
+    'el ≤150 de jul/26 es el de N2',
+    tarifaDe('2026-07').tramos[0].precioKwh,
+    80.708,
+    0.001,
+  );
+
+  console.log(`✓ Caso 3: el JSON queda filtrado a Edenor N2 (${CUADROS_ENRE.length} períodos)`);
+}
+
+// ---------------------------------------------------------------------------
 // Los impuestos y la tasa salen del monto, no se suman encima
 // ---------------------------------------------------------------------------
 
@@ -352,7 +403,7 @@ console.log(
   assertCerca('tasa municipal', 'sobre 296,9 kWh a $5,24', conTasa.tasaMunicipal, 1555.76, 25);
   assertIgual('tasa municipal', 'es mayor a cero bajo 600', conTasa.tasaMunicipal > 0, true);
 
-  console.log('✓ Caso 3: impuestos y tasa municipal salen del monto recargado');
+  console.log('✓ Caso 4: impuestos y tasa municipal salen del monto recargado');
 }
 
 // ---------------------------------------------------------------------------
@@ -369,7 +420,7 @@ console.log(
       assertCerca(`ida y vuelta (${monto} desde ${acumulado})`, 'monto', vuelta, monto, 3);
     }
   }
-  console.log('✓ Caso 4: ida y vuelta monto ↔ kWh, en 4 acumulados y 4 montos');
+  console.log('✓ Caso 5: ida y vuelta monto ↔ kWh, en 4 acumulados y 4 montos');
 }
 
 // ---------------------------------------------------------------------------
@@ -390,7 +441,7 @@ console.log(
   const ultimo = proximidadAlSalto(1300, tarifaDe('2026-07'));
   assertIgual('salto', 'sin tramo siguiente en el ≤1400', ultimo.precioSiguiente, null);
 
-  console.log('✓ Caso 5: el salto de 700 kWh abarata el kWh, y se reporta con signo');
+  console.log('✓ Caso 6: el salto de 700 kWh abarata el kWh, y se reporta con signo');
 }
 
 // ---------------------------------------------------------------------------
@@ -408,7 +459,8 @@ console.log(
   assertLanza('bordes', 'monto negativo', () => calcularRecarga(-1, 0));
   assertLanza('bordes', 'acumulado negativo', () => calcularRecarga(1000, -1));
   assertLanza('bordes', 'kWh negativos', () => montoParaKwh(-1, 0));
-  assertLanza('bordes', 'período sin cuadro', () => tarifaDe('2025-10'));
+  // Anterior al primer cuadro que el ENRE tiene publicado en su índice.
+  assertLanza('bordes', 'período sin cuadro', () => tarifaDe('2020-01'));
 
   // Una recarga que no cabe en la escalera tampoco se puede liquidar: los kWh de más no
   // tienen precio conocido.
@@ -416,7 +468,7 @@ console.log(
     calcularRecarga(RECARGA_MAXIMA, 1399),
   );
 
-  console.log('✓ Caso 6: fuera de la escalera falla en vez de extrapolar');
+  console.log('✓ Caso 7: fuera de la escalera falla en vez de extrapolar');
 }
 
 if (fallos > 0) {

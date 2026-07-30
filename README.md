@@ -23,8 +23,10 @@ Prototipo funcional. Lo que hay hoy:
 - **Calculadora de recarga**: se ingresa el monto y el consumo acumulado del mes, y se
   ven los kWh que se acreditan con el mismo desglose que imprime el ticket, renglón por
   renglón. La recarga está acotada a los límites de MIDE, entre $1.500 y $60.000.
-- **Backend** Go + Gin: solo `GET /health`.
-- **Scraper** Python: sin implementar. Es lo que automatizaría la carga de cuadros nuevos.
+- **Scraper** de los cuadros del ENRE (`scraper/`, Python con `uv`): baja los cuadros T1-R de
+  Edenor y los emite como JSON, que es lo que el motor lee. Tiene cargados 28 períodos
+  (abr/2024 a jul/2026) y ya no hace falta transcribir tarifas a mano.
+- **Sin backend**, y no hace falta: ver [más abajo](#por-qué-no-hay-backend).
 
 ## El problema
 
@@ -46,7 +48,7 @@ por tramo. Los topes son **150 / 400 / 500 / 600 / 700 / 1400 kWh**.
 
 **3. La escalera no es monótona.** Sube hasta los 700 kWh y después baja fuerte:
 
-| Tramo (2026-07) | $/kWh |
+| Tramo (2026-07) | $/kWh   |
 | --------------- | ------- |
 | ≤150            | 80,708  |
 | ≤400            | 112,283 |
@@ -118,28 +120,52 @@ llegó al modelo vigente está en [`docs/bitacora.md`](docs/bitacora.md), y el p
 ├── app/                  frontend React Native + Expo (TypeScript strict)
 │   ├── domain/           motor de cálculo — TypeScript puro, testeable aislado
 │   │   ├── types.ts         CuadroEnre, TarifaMide, ResultadoRecarga
-│   │   ├── cuadrosEnre.ts   cuadros T1-R del ENRE por período (los datos)
+│   │   ├── cuadrosEnre.json cuadros T1-R del ENRE — lo genera el scraper, no editar
+│   │   ├── cuadrosEnre.ts   carga el JSON y lo filtra a Edenor N2
 │   │   ├── tarifas.ts       costoFactura(), precioTramo() — la derivación
 │   │   ├── calculadora.ts   calcularRecarga(), proximidadAlSalto(), montoParaKwh()
-│   │   └── casos.ts         11 comprobantes reales + casos estructurales
+│   │   └── casos.ts         12 comprobantes reales + casos estructurales
 │   ├── screens/          pantallas (calculadora de carga)
 │   └── store/            estado (zustand) y validación (zod)
-├── backend/              API Go + Gin — opcional, servirá los cuadros
-├── scraper/              extracción de cuadros del ENRE (Python) — sin implementar
+├── scraper/              baja los cuadros del ENRE (Python + uv)
 └── docs/                 documentación de producto y del modelo de cálculo
 ```
 
 El MVP calcula **100% en el cliente**, con los cuadros embebidos: la app funciona sin
-conexión y no depende del backend. Cuando el backend exista, servirá cuadros actualizados
-alimentados por el scraper:
+conexión y no depende de ningún servicio.
 
 ```
-Scraper (Python) → cuadros del ENRE → backend (Go + Gin) → app (React Native)
-                                    ↘    (o embebido)    ↗
+Scraper (Python) → app/domain/cuadrosEnre.json → motor → pantalla
 ```
 
-Los cuadros están en el índice público del ENRE
-(`enre.gov.ar/web/tarifasd.nsf/todoscuadros?openview`), un documento por período.
+Los cuadros salen del índice público del ENRE
+(`enre.gov.ar/web/tarifasd.nsf/todoscuadros?openview`), un documento por período. Ver
+[`scraper/README.md`](scraper/README.md) — los cuadros cambiaron de formato en febrero 2026 y
+el scraper maneja los dos.
+
+### Por qué no hay backend
+
+Hubo un scaffold de Go + Gin, eliminado porque nunca tuvo un propósito que sobreviviera al
+contacto con el resto. Servía `/health` y su razón declarada era ofrecer una API de tarifas,
+que es justo lo que resolvió el scraper emitiendo un JSON embebido.
+
+Nada de lo planeado necesita servidor: el historial de cargas es almacenamiento local y los
+avisos de consumo se hacen con notificaciones locales, porque el cálculo corre en el
+dispositivo.
+
+Tampoco lo necesita la pieza que sí falta. Como las tarifas cambian todos los meses, un JSON
+embebido en el APK obligaría a un release mensual en Play Store, y los usuarios que no
+actualizan calcularían con precios viejos: un mes de atraso en el tramo ≤1400 son 9,6 kWh de
+error en una recarga de $60.000. La solución prevista es un **GitHub Action con cron** que
+corra el scraper y commitee el JSON, con la app leyéndolo, cacheándolo y usando el embebido
+como fallback offline. Sin hosting.
+
+Ese diseño tiene además una ventaja sobre scrapear el ENRE desde la app: si el ENRE cambia su
+HTML, se arregla el scraper y todos los usuarios se benefician **sin republicar**.
+
+Un backend recién tendría sentido con features que necesiten estado compartido — cuentas,
+sincronización entre dispositivos, notificaciones push reales. Si aparece alguna, el scaffold
+que había está en la historia de git.
 
 ## Correrlo
 
@@ -159,23 +185,23 @@ npx tsc --noEmit          # typecheck
 npx tsx domain/casos.ts   # corre los casos de prueba
 ```
 
-Backend (opcional, no hace falta para la app):
+Scraper de los cuadros (no hace falta para usar la app):
 
 ```bash
-cd backend
-go run ./cmd/api          # :8080, GET /health
+uv run scraper/main.py            # trae el último cuadro publicado
+uv run scraper/main.py --check    # valida los parsers contra valores verificados
 ```
 
 ## Roadmap
 
+- **Actualización remota**: GitHub Action con cron que corra el scraper, y la app leyendo el
+  JSON publicado con cache y fallback. Es el requisito previo a Play Store.
 - **El tramo de arriba de 1400 kWh**, lo único que el motor no sabe calcular. Hace falta un
   comprobante de una recarga hecha con ese acumulado.
 - **Confirmar la tasa municipal del período vigente** con un comprobante que compre por
   debajo de 600 kWh acumulados.
-- **Scraper del ENRE**: hoy los cuadros se cargan a mano. Automatizarlo mantendría la app
-  al día sin tocar código.
-- **Niveles N1 y N3**: el cuadro los publica, así que la derivación ya los cubriría. Solo
-  falta cargarlos y poder elegir el nivel.
+- **Niveles N1 y N3**: el scraper ya los baja y la derivación los cubre. Falta poder elegir el
+  nivel en la pantalla. Ojo: N3 dejó de publicarse en los cuadros desde febrero 2026.
 - Simulación temporal: cuánto duran los kWh según el ritmo de consumo, y avisar cuándo
   conviene esperar antes de recargar.
 

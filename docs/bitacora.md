@@ -24,7 +24,7 @@ trabajo, pero hay que leerla con cuidado, porque llevó a un error caro:
 
 **el cuadro del ENRE fue descartado por una comparación mal hecha.** Se contrastó su precio
 más alto ($186,121/kWh) contra el del ticket ($233,477) y se concluyó que MIDE cobraba otra
-tarifa. En realidad $186,121 es el *cargo variable excedente* del bloque R6, y le faltaba
+tarifa. En realidad $186,121 es el _cargo variable excedente_ del bloque R6, y le faltaba
 sumarle el cargo fijo prorrateado. El cuadro **sí** es la fuente, y ese descarte costó
 meses de creer que hacía falta un comprobante por mes para siempre.
 
@@ -71,7 +71,8 @@ fórmula candidata estaba mal, no aceptablemente aproximada.
 techo, y MIDE lo trata como si el tope fuera 1400 (así lo imprime el ticket), pero de dónde
 sale ese 1400 no se sabe. Puede ser que MIDE no venda más de 1400 kWh en un mes, o que haya
 otro bloque. _Lo resuelve:_ un comprobante con más de 1400 kWh acumulados. El máximo visto
-es 1336,8 (junio/26).
+es 1336,8 (junio/26). Es la única pieza de conocimiento de MIDE que el scraper inyecta al
+traducir el cuadro, y está marcada como tal en `TOPE_ULTIMO_BLOQUE`.
 
 **2. La tasa municipal del período vigente.** No la publica el ENRE —es del municipio— así
 que solo se conoce por tickets: $3,4933/kWh en oct-dic/25 y $5,2400/kWh en feb-abr/26. Para
@@ -87,16 +88,59 @@ multiplicador, unos 0,04 kWh en una recarga de $60.000 — es cosmético, no urg
 **4. Cómo se calcula el "Subsidio Estado Nacional" que imprime el ticket.** No hace falta
 para el cálculo, pero no se logró derivar de los cuadros. Curiosidad pendiente.
 
+## El scraper, y lo que confirmó
+
+`scraper/main.py` baja los cuadros del índice del ENRE y los emite en `scraper/cuadros.json`
+(78 cuadros, 28 períodos, abr/2024 a jul/2026, Edenor N1/N2/N3 según el formato).
+
+Dos resultados que valen más que el scraper en sí:
+
+- **Reproduce exactos los 7 períodos que estaban cargados a mano**: 161 campos idénticos,
+  cero diferencias. Confirma que la transcripción manual no tenía errores.
+- **Trajo el cuadro de oct/25**, que no se había conseguido, y la fórmula predice sus dos
+  precios al milésimo (`187,6299` y `282,3096` contra los `187,630` y `282,310` del
+  comprobante 58350). Es la validación más limpia que tiene el modelo: ese período **no
+  participó de derivar la fórmula**, así que no puede haber ajuste circular. Con eso el
+  comprobante 58350 entró a `casos.ts` y ya son **12 de 12** los tickets reproducidos.
+
+Dos cosas que costaron y conviene no volver a descubrir:
+
+- **El ENRE rechaza el handshake TLS de OpenSSL 3** (`SSLV3_ALERT_HANDSHAKE_FAILURE`). Se
+  resuelve bajando a `SECLEVEL=1`. Se probó que no hace falta forzar TLS 1.2 ni renegociación
+  legacy, y el certificado se sigue verificando.
+- **El formato de los cuadros cambió en febrero de 2026**, no en enero como se había supuesto:
+  enero todavía traía tres niveles. Por eso el scraper elige el parser mirando los `<h4>`
+  presentes y no la fecha. Desde feb/26 **N3 dejó de publicarse**.
+
+## El backend, eliminado
+
+Había un scaffold de Go + Gin (`backend/`, 47 líneas: `/health` y nada más). Se eliminó en la
+rama `feat/scraper-enre`.
+
+El razonamiento, por si alguna vez se plantea de nuevo: su propósito declarado en `idea.md`
+era servir una API de tarifas, y eso quedó cubierto por el scraper emitiendo un JSON que la
+app embebe. Nada de lo que está en "futuras mejoras" necesita servidor — el historial de
+cargas es AsyncStorage y los avisos de consumo se hacen con notificaciones locales, porque el
+cálculo corre en el dispositivo. Tampoco lo necesita la actualización remota de tarifas, que
+va a resolverse con un GitHub Action publicando el JSON.
+
+Dos señales de que era scaffolding sin dueño: el diagrama de flujo de datos de `idea.md` ya no
+lo incluía, y el scaffold era Go+Gin mientras `idea.md` decía Node.js + Express.
+
+**Volvería a tener sentido** con features que necesiten estado compartido: cuentas,
+sincronización entre dispositivos o notificaciones push reales. Si aparece alguna, recuperarlo
+es `git checkout f198660 -- backend/`, o rehacerlo desde cero en minutos.
+
 ## Próximo paso
 
 El motor está completo para el rango que importa. Lo que más valor agrega ahora:
 
-- **El scraper** (`scraper/`, hoy vacío). Los cuadros se cargan a mano en `cuadrosEnre.ts`;
-  automatizarlo mantiene la app al día sin tocar código. El índice del ENRE está en
-  `enre.gov.ar/web/tarifasd.nsf/todoscuadros?openview`, un documento por período, y los IDs
-  de los 7 cargados están en el campo `fuente` de cada cuadro.
-- **N1 y N3**: el cuadro los trae, así que la derivación ya los cubre. Falta cargarlos y
-  poder elegir el nivel; con eso la app sirve para cualquiera, no solo para este medidor.
+- **Actualización remota**, que es el requisito previo a Play Store. Como las tarifas cambian
+  todos los meses, un JSON embebido obligaría a un release mensual y los usuarios que no
+  actualizan calcularían mal. Plan: un GitHub Action con cron que corra el scraper y commitee
+  el JSON, y la app leyéndolo con cache y fallback al embebido. Sin hosting.
+- **N1 y N3**: el scraper ya los baja y la derivación los cubre. Falta poder elegir el nivel
+  en la pantalla; con eso la app sirve para cualquiera, no solo para este medidor.
 - **Simulación temporal**, que era la idea original del producto y hasta ahora estaba
   bloqueada por no tener la tabla.
 
@@ -122,15 +166,27 @@ cómo funciona MIDE.
   error y pasaba por casualidad, porque el acumulado correcto y el equivocado caían en el
   mismo tramo.
 - **Un hook `PostToolUse`** en `.claude/settings.json` corre Prettier sobre cada archivo que
-  se escribe o edita. Para una pasada completa está la skill `/formatear`, que además corre
-  `gofmt` sobre `backend/`.
+  se escribe o edita. Para una pasada completa está la skill `/formatear`. Python queda
+  afuera: no hay formateador configurado para el scraper.
 - **Los casos de prueba** (`app/domain/casos.ts`) no son un framework: es un script que se
   corre con `npx tsx domain/casos.ts`. Acumula fallos y sale con código 1, en vez de tirar en
   el primero.
 - **Las tolerancias de los tests están justificadas en comentarios**, no son arbitrarias: el
   ticket imprime los kWh con 1 decimal y el $/kWh con 3, y el emisor no redondea de forma
   consistente (en un ticket redondea el milésimo hacia arriba y en otro lo trunca).
-- **Falta el cuadro de octubre 2025**, así que el comprobante 58350 (30/10/25) no se puede
-  contrastar y quedó fuera de los casos. Es el único de los 12 sin testear.
+- **El scraper tiene su propio test** (`uv run scraper/main.py --check`): baja un período de
+  cada formato y compara contra valores validados con comprobantes. No depende de la app, así
+  que sigue sirviendo si alguna vez se separan.
+- **`cuadrosEnre.json` lo genera el scraper y trae los tres niveles**, pero `cuadrosEnre.ts` lo
+  filtra a Edenor N2. Ese filtro no es cosmético: `cuadroDe()` busca solo por período, así que
+  sin él el motor tomaría el primer nivel que matchee y calcularía con la tarifa sin subsidio
+  sin que nada falle. El caso 3 de `casos.ts` lo cubre, y usa el tramo ≤150 como discriminante
+  porque del ≤500 en adelante N1 y N2 dan **el mismo precio** (el consumo base ya está agotado
+  y el excedente se cobra pleno). Esa igualdad es, leída desde el cuadro, la razón de que los
+  tickets con acumulado alto impriman "Subsidio Estado Nacional: $0,00".
+- **El JSON tiene períodos anteriores al primer comprobante** (llega hasta abr/2024). Para
+  esos, `tasaMunicipalDe()` no encuentra ningún valor previo y devuelve 0, así que una recarga
+  simulada en 2024 no cobraría tasa municipal. No afecta el uso real —la app usa el período
+  vigente— ni los tests, donde cada ticket trae su tasa conocida.
 - **Verificación visual**: `pnpm web` levanta la app en el navegador sin necesidad de
   emulador. Al matar el proceso, Metro suele quedar vivo ocupando el puerto.
