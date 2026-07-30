@@ -60,11 +60,24 @@ export function costoFactura(kwh: number, cuadro: CuadroEnre): number {
 
   const base = Math.min(kwh, cuadro.consumoBaseKwh);
   const excedente = Math.max(0, kwh - cuadro.consumoBaseKwh);
-  // En R1 el excedente es siempre 0 (el consumo base nunca bajó de 150), así que el cuadro
-  // no publica cargo variable excedente para ese bloque.
-  const precioExcedente = bloque.cargoVariableExcedente ?? 0;
 
-  return bloque.cargoFijo + bloque.cargoVariableBase * base + precioExcedente * excedente;
+  // En R1 el cuadro no publica cargo variable excedente, y no hace falta: el consumo base
+  // nunca bajó de 150, así que ahí el excedente siempre es 0. Pero si alguna vez hay kWh
+  // excedentes sin precio, hay que cortar. Asumir 0 los cobraría gratis y devolvería un
+  // precio demasiado bajo sin que nada avise.
+  if (excedente > 0 && bloque.cargoVariableExcedente === null) {
+    throw new Error(
+      `El cuadro ${cuadro.periodo} no publica cargo variable excedente para el bloque de ` +
+        `${bloque.hastaKwh} kWh, pero ${excedente} kWh caen por encima del consumo base ` +
+        `(${cuadro.consumoBaseKwh} kWh).`,
+    );
+  }
+
+  return (
+    bloque.cargoFijo +
+    bloque.cargoVariableBase * base +
+    (bloque.cargoVariableExcedente ?? 0) * excedente
+  );
 }
 
 /**
