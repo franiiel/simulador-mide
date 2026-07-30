@@ -1,62 +1,63 @@
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { calcularKwh, calcularMes, proximidadAlSalto } from '../domain/calculadora';
-import { bloqueBaseKwh, CUADRO_EDENOR } from '../domain/tarifas';
-import { RECARGA_MAXIMA, RECARGA_MINIMA } from '../domain/types';
-import type { Mes } from '../domain/types';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { calcularRecarga, proximidadAlSalto } from '../domain/calculadora';
+import { TARIFA_VIGENTE, topeEscalera } from '../domain/tarifas';
+import { RECARGA_MAXIMA, RECARGA_MINIMA, TOPE_TASA_MUNICIPAL_KWH } from '../domain/types';
 import { useSimulacion, validarAcumulado, validarMonto } from '../store/useSimulacion';
 
-const MESES: { valor: Mes; etiqueta: string }[] = [
-  { valor: 1, etiqueta: 'Ene' },
-  { valor: 2, etiqueta: 'Feb' },
-  { valor: 3, etiqueta: 'Mar' },
-  { valor: 4, etiqueta: 'Abr' },
-  { valor: 5, etiqueta: 'May' },
-  { valor: 6, etiqueta: 'Jun' },
-  { valor: 7, etiqueta: 'Jul' },
-  { valor: 8, etiqueta: 'Ago' },
-  { valor: 9, etiqueta: 'Sep' },
-  { valor: 10, etiqueta: 'Oct' },
-  { valor: 11, etiqueta: 'Nov' },
-  { valor: 12, etiqueta: 'Dic' },
-];
-
-const pesos = new Intl.NumberFormat('es-AR', {
+const pesos = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
+const pesosRedondos = new Intl.NumberFormat('es-AR', {
   style: 'currency',
   currency: 'ARS',
   maximumFractionDigits: 0,
 });
 const kwhFmt = new Intl.NumberFormat('es-AR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+// El ticket imprime el precio del kWh con 3 decimales; conviene mostrarlo igual para poder
+// contrastar de un vistazo.
+const precioFmt = new Intl.NumberFormat('es-AR', {
+  style: 'currency',
+  currency: 'ARS',
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 3,
 });
 
+/** Calcula la recarga y devuelve el error si el acumulado cae fuera de la escalera. */
+function simular(monto: number, acumulado: number) {
+  try {
+    return {
+      recarga: calcularRecarga(monto, acumulado),
+      salto: proximidadAlSalto(acumulado),
+      error: null,
+    };
+  } catch (e) {
+    return { recarga: null, salto: null, error: (e as Error).message };
+  }
+}
+
 export function Calculadora() {
-  const {
-    montoTexto,
-    acumuladoTexto,
-    mes,
-    conSubsidio,
-    setMontoTexto,
-    setAcumuladoTexto,
-    setMes,
-    setConSubsidio,
-  } = useSimulacion();
+  const { montoTexto, acumuladoTexto, setMontoTexto, setAcumuladoTexto } = useSimulacion();
 
   const vMonto = validarMonto(montoTexto);
   const vAcumulado = validarAcumulado(acumuladoTexto);
-  const opciones = { mes, conSubsidio };
+  const simulacion = vMonto.ok && vAcumulado.ok ? simular(vMonto.valor, vAcumulado.valor) : null;
+  const recarga = simulacion?.recarga;
 
-  const compra =
-    vMonto.ok && vAcumulado.ok ? calcularKwh(vMonto.valor, opciones, vAcumulado.valor) : null;
-  const facturaFinal = compra ? calcularMes(compra.consumoFinalKwh, opciones) : null;
-  const salto = compra ? proximidadAlSalto(compra.consumoFinalKwh, opciones) : null;
+  // La tasa municipal no sale del cuadro del ENRE, solo de los tickets. Si el período
+  // vigente no tiene ninguno que la confirme y la recarga igual la paga, hay que decirlo.
+  const tasaSinConfirmar =
+    TARIFA_VIGENTE.tasaMunicipalHeredada && (recarga?.tasaMunicipal ?? 0) > 0;
 
   return (
     <ScrollView style={styles.pantalla} contentContainerStyle={styles.contenido}>
       <View style={styles.fuente}>
         <Text style={styles.fuenteTexto}>
-          Cuadro tarifario {CUADRO_EDENOR.distribuidora} · período {CUADRO_EDENOR.periodo} ·{' '}
-          {CUADRO_EDENOR.resolucion}
+          {TARIFA_VIGENTE.distribuidora} · nivel {TARIFA_VIGENTE.nivel} · período{' '}
+          {TARIFA_VIGENTE.periodo}
+        </Text>
+        <Text style={styles.fuenteTexto}>
+          Precios derivados del cuadro tarifario T1-R del ENRE
         </Text>
       </View>
 
@@ -66,11 +67,12 @@ export function Calculadora() {
         value={montoTexto}
         onChangeText={setMontoTexto}
         keyboardType="numeric"
-        placeholder="60000"
+        placeholder="50000"
         placeholderTextColor="#9ca3af"
       />
       <Text style={styles.ayuda}>
-        Entre {pesos.format(RECARGA_MINIMA)} y {pesos.format(RECARGA_MAXIMA)} por recarga
+        Entre {pesosRedondos.format(RECARGA_MINIMA)} y {pesosRedondos.format(RECARGA_MAXIMA)} por
+        recarga
       </Text>
       {!vMonto.ok && montoTexto.length > 0 ? (
         <Text style={styles.error}>{vMonto.error}</Text>
@@ -85,98 +87,139 @@ export function Calculadora() {
         placeholder="0"
         placeholderTextColor="#9ca3af"
       />
-      <Text style={styles.ayuda}>Define desde qué categoría empezás a comprar</Text>
+      <Text style={styles.ayuda}>
+        El que dice "kWh Acumulados" en tu último comprobante. Se resetea cada mes.
+      </Text>
       {!vAcumulado.ok ? <Text style={styles.error}>{vAcumulado.error}</Text> : null}
 
-      <Text style={styles.etiqueta}>Mes</Text>
-      <View style={styles.meses}>
-        {MESES.map(({ valor, etiqueta }) => {
-          const activo = valor === mes;
-          return (
-            <TouchableOpacity
-              key={valor}
-              onPress={() => setMes(valor)}
-              style={[styles.mes, activo && styles.chipActivo]}
-            >
-              <Text style={[styles.chipTexto, activo && styles.chipTextoActivo]}>{etiqueta}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      <Text style={styles.ayuda}>Bloque base bonificado en este mes: {bloqueBaseKwh(mes)} kWh</Text>
+      {simulacion?.error ? (
+        <View style={styles.desconocido}>
+          <Text style={styles.desconocidoTexto}>{simulacion.error}</Text>
+        </View>
+      ) : null}
 
-      <Text style={styles.etiqueta}>Subsidio</Text>
-      <View style={styles.segmentos}>
-        <TouchableOpacity
-          onPress={() => setConSubsidio(true)}
-          style={[styles.segmento, conSubsidio && styles.chipActivo]}
-        >
-          <Text style={[styles.chipTexto, conSubsidio && styles.chipTextoActivo]}>
-            Con subsidio
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setConSubsidio(false)}
-          style={[styles.segmento, !conSubsidio && styles.chipActivo]}
-        >
-          <Text style={[styles.chipTexto, !conSubsidio && styles.chipTextoActivo]}>
-            Sin subsidio
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {compra && facturaFinal && salto ? (
+      {recarga ? (
         <>
           <View style={styles.resultado}>
-            <Text style={styles.resultadoEtiqueta}>Te alcanza para</Text>
-            <Text style={styles.resultadoKwh}>{kwhFmt.format(compra.kwhComprados)} kWh</Text>
-            <Text style={styles.resultadoCategoria}>
-              terminás el mes en {kwhFmt.format(compra.consumoFinalKwh)} kWh · categoría{' '}
-              {compra.categoriaFinal}
+            <Text style={styles.resultadoEtiqueta}>Se acreditan</Text>
+            <Text style={styles.resultadoKwh}>{kwhFmt.format(recarga.kwh)} kWh</Text>
+            <Text style={styles.resultadoNota}>
+              {pesos.format(recarga.precioEfectivoPorKwh)}/kWh todo incluido · quedás en{' '}
+              {kwhFmt.format(recarga.acumuladoFinalKwh)} kWh acumulados
             </Text>
-
-            <View style={styles.desglose}>
-              {compra.tramos.map((t, i) => (
-                <View key={i} style={styles.fila}>
-                  <Text style={styles.filaEtiqueta}>
-                    {kwhFmt.format(t.kwh)} kWh en {t.categoria}
-                    {t.bonificado ? ' (bonificado)' : ''}
-                  </Text>
-                  <Text style={styles.filaValor}>{pesos.format(t.precioKwh)}/kWh</Text>
-                </View>
-              ))}
-            </View>
           </View>
 
-          {salto.categoriaSiguiente && salto.saltoTotal !== null ? (
-            <View style={styles.salto}>
-              <Text style={styles.saltoTitulo}>
-                Terminás a {kwhFmt.format(salto.kwhHastaElSalto ?? 0)} kWh de pasar a{' '}
-                {salto.categoriaSiguiente}
-              </Text>
-              <Text style={styles.saltoTexto}>
-                Si el mes termina ahí, el cargo fijo sube {pesos.format(salto.saltoCargoFijo ?? 0)}{' '}
-                y la factura pasa de {pesos.format(salto.totalActual)} a{' '}
-                {pesos.format(salto.totalTrasElSalto ?? 0)}.
+          <View style={styles.ticket}>
+            <Text style={styles.ticketTitulo}>Desglose de la recarga</Text>
+
+            {recarga.renglones.map((r) => (
+              <View key={r.hastaKwhAcumulados} style={styles.renglon}>
+                <Text style={styles.renglonTramo}>
+                  Hasta {r.hastaKwhAcumulados} kWh · {precioFmt.format(r.precioKwh)}/kWh
+                </Text>
+                <View style={styles.fila}>
+                  <Text style={styles.filaEtiqueta}>{kwhFmt.format(r.kwh)} kWh</Text>
+                  <Text style={styles.filaValor}>{pesos.format(r.importe)}</Text>
+                </View>
+              </View>
+            ))}
+
+            <View style={styles.separador} />
+            <Fila etiqueta="Energía (subtotal A)" valor={pesos.format(recarga.subtotalEnergia)} />
+            <Fila etiqueta="IVA" valor={pesos.format(recarga.iva)} />
+            <Fila
+              etiqueta="Contribución municipal"
+              valor={pesos.format(recarga.contribucionMunicipal)}
+            />
+            <Fila
+              etiqueta="Contribución provincial"
+              valor={pesos.format(recarga.contribucionProvincial)}
+            />
+            {recarga.tasaMunicipal > 0 ? (
+              <Fila etiqueta="Tasa municipal" valor={pesos.format(recarga.tasaMunicipal)} />
+            ) : null}
+            <View style={styles.separador} />
+            <Fila etiqueta="Total recargado" valor={pesos.format(recarga.montoBruto)} />
+
+            <Text style={styles.ticketNota}>
+              Los impuestos salen del monto: solo{' '}
+              {Math.round((recarga.subtotalEnergia / recarga.montoBruto) * 100)}% compra energía.
+            </Text>
+          </View>
+
+          {recarga.renglones.length > 1 ? (
+            <Text style={styles.nota}>
+              La recarga cruza un cambio de precio, así que se cobra en {recarga.renglones.length}{' '}
+              tramos — igual que en el comprobante.
+            </Text>
+          ) : null}
+
+          {tasaSinConfirmar ? (
+            <View style={styles.aviso}>
+              <Text style={styles.avisoTexto}>
+                La tasa municipal ({pesos.format(TARIFA_VIGENTE.tasaMunicipalPorKwh)}/kWh bajo los{' '}
+                {TOPE_TASA_MUNICIPAL_KWH} kWh) no la publica el ENRE y no hay comprobante de{' '}
+                {TARIFA_VIGENTE.periodo} que la confirme: se usa la del último período conocido.
+                Es el único número acá que no está verificado.
               </Text>
             </View>
           ) : null}
 
-          <View style={styles.factura}>
-            <Text style={styles.facturaTitulo}>Factura estimada del mes</Text>
-            <Fila etiqueta="Energía" valor={pesos.format(facturaFinal.costoEnergia)} />
-            <Fila
-              etiqueta={`Cargo fijo (${facturaFinal.categoriaFinal})`}
-              valor={pesos.format(facturaFinal.cargoFijo)}
+          {simulacion.salto && simulacion.salto.kwhHastaElSalto !== null ? (
+            <Salto
+              kwhHastaElSalto={simulacion.salto.kwhHastaElSalto}
+              precioSiguiente={simulacion.salto.precioSiguiente}
+              variacionPorKwh={simulacion.salto.variacionPorKwh}
             />
-            <Fila etiqueta="Total" valor={pesos.format(facturaFinal.total)} />
-            <Text style={styles.facturaNota}>
-              El cargo fijo es mensual y no sale de la recarga.
-            </Text>
-          </View>
+          ) : null}
         </>
       ) : null}
     </ScrollView>
+  );
+}
+
+/**
+ * El cambio de tramo puede abaratar o encarecer el kWh: la escalera no es monótona, y
+ * cruzar los 700 kWh acumulados lo abarata bastante. Por eso el cartel cambia de color y de
+ * texto según el signo, en vez de avisar siempre de un encarecimiento.
+ */
+function Salto({
+  kwhHastaElSalto,
+  precioSiguiente,
+  variacionPorKwh,
+}: {
+  kwhHastaElSalto: number;
+  precioSiguiente: number | null;
+  variacionPorKwh: number | null;
+}) {
+  if (precioSiguiente === null || variacionPorKwh === null) {
+    return (
+      <View style={styles.saltoNeutro}>
+        <Text style={styles.saltoTituloNeutro}>
+          Estás a {kwhFmt.format(kwhHastaElSalto)} kWh del tope de {topeEscalera()} kWh
+        </Text>
+        <Text style={styles.saltoTextoNeutro}>
+          Pasando ese acumulado no se sabe qué precio aplica: el cuadro del ENRE publica el
+          último bloque sin techo y ningún comprobante llegó tan alto.
+        </Text>
+      </View>
+    );
+  }
+
+  const abarata = variacionPorKwh < 0;
+
+  return (
+    <View style={abarata ? styles.saltoBueno : styles.salto}>
+      <Text style={abarata ? styles.saltoTituloBueno : styles.saltoTitulo}>
+        {abarata ? 'Conviene pasar' : 'Ojo'}: a {kwhFmt.format(kwhHastaElSalto)} kWh cambia el
+        precio
+      </Text>
+      <Text style={abarata ? styles.saltoTextoBueno : styles.saltoTexto}>
+        Ahí el kWh {abarata ? 'baja' : 'sube'} a {precioFmt.format(precioSiguiente)} (
+        {abarata ? '' : '+'}
+        {pesos.format(variacionPorKwh)} por kWh).
+      </Text>
+    </View>
   );
 }
 
@@ -192,10 +235,11 @@ function Fila({ etiqueta, valor }: { etiqueta: string; valor: string }) {
 const styles = StyleSheet.create({
   pantalla: { flex: 1, backgroundColor: '#fff' },
   contenido: { padding: 20 },
-  fuente: { backgroundColor: '#f3f4f6', borderRadius: 8, padding: 10, marginBottom: 8 },
+  fuente: { backgroundColor: '#f3f4f6', borderRadius: 8, padding: 10, marginBottom: 8, gap: 2 },
   fuenteTexto: { color: '#4b5563', fontSize: 12 },
   etiqueta: { fontSize: 13, fontWeight: '600', color: '#374151', marginTop: 16, marginBottom: 6 },
   ayuda: { fontSize: 12, color: '#6b7280', marginTop: 4 },
+  nota: { fontSize: 12, color: '#6b7280', marginTop: 10, lineHeight: 17 },
   input: {
     borderWidth: 1,
     borderColor: '#d1d5db',
@@ -206,34 +250,44 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   error: { color: '#b91c1c', fontSize: 13, marginTop: 4 },
-  meses: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  mes: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+  desconocido: {
+    marginTop: 24,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#fef2f2',
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#fca5a5',
   },
-  segmentos: { flexDirection: 'row', gap: 8 },
-  segmento: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    alignItems: 'center',
-  },
-  chipActivo: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
-  chipTexto: { fontSize: 14, fontWeight: '600', color: '#374151' },
-  chipTextoActivo: { color: '#fff' },
+  desconocidoTexto: { color: '#991b1b', fontSize: 14, lineHeight: 20 },
   resultado: { marginTop: 24, padding: 16, borderRadius: 12, backgroundColor: '#eff6ff' },
   resultadoEtiqueta: { fontSize: 13, color: '#1e40af', fontWeight: '600' },
   resultadoKwh: { fontSize: 34, fontWeight: '700', color: '#1e3a8a' },
-  resultadoCategoria: { fontSize: 13, color: '#1e40af' },
-  desglose: { marginTop: 12, gap: 4 },
+  resultadoNota: { fontSize: 13, color: '#1e40af' },
+  ticket: {
+    marginTop: 12,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    gap: 4,
+  },
+  ticketTitulo: { fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 4 },
+  ticketNota: { fontSize: 12, color: '#6b7280', marginTop: 6 },
+  separador: { height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 },
+  renglon: { marginBottom: 4 },
+  renglonTramo: { fontSize: 12, color: '#6b7280' },
   fila: { flexDirection: 'row', justifyContent: 'space-between' },
   filaEtiqueta: { fontSize: 13, color: '#4b5563' },
   filaValor: { fontSize: 13, fontWeight: '600', color: '#1f2937' },
+  aviso: {
+    marginTop: 12,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+  },
+  avisoTexto: { fontSize: 12, color: '#4b5563', lineHeight: 18 },
   salto: {
     marginTop: 12,
     padding: 16,
@@ -244,14 +298,24 @@ const styles = StyleSheet.create({
   },
   saltoTitulo: { fontSize: 15, fontWeight: '700', color: '#78350f', marginBottom: 6 },
   saltoTexto: { fontSize: 13, color: '#78350f', lineHeight: 19 },
-  factura: {
+  saltoBueno: {
     marginTop: 12,
     padding: 16,
     borderRadius: 12,
+    backgroundColor: '#ecfdf5',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    gap: 4,
+    borderColor: '#34d399',
   },
-  facturaTitulo: { fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 4 },
-  facturaNota: { fontSize: 12, color: '#6b7280', marginTop: 6 },
+  saltoTituloBueno: { fontSize: 15, fontWeight: '700', color: '#065f46', marginBottom: 6 },
+  saltoTextoBueno: { fontSize: 13, color: '#065f46', lineHeight: 19 },
+  saltoNeutro: {
+    marginTop: 12,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+  },
+  saltoTituloNeutro: { fontSize: 15, fontWeight: '700', color: '#374151', marginBottom: 6 },
+  saltoTextoNeutro: { fontSize: 13, color: '#4b5563', lineHeight: 19 },
 });

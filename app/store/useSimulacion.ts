@@ -1,32 +1,21 @@
 import { z } from 'zod';
 import { create } from 'zustand';
 import { RECARGA_MAXIMA, RECARGA_MINIMA } from '../domain/types';
-import type { Mes } from '../domain/types';
 
 // La entrada se guarda como texto porque es lo que devuelve TextInput. Convertirla a
 // número es responsabilidad de la validación, no del store.
 type EstadoSimulacion = {
   montoTexto: string;
   acumuladoTexto: string;
-  mes: Mes;
-  conSubsidio: boolean;
   setMontoTexto: (texto: string) => void;
   setAcumuladoTexto: (texto: string) => void;
-  setMes: (mes: Mes) => void;
-  setConSubsidio: (conSubsidio: boolean) => void;
 };
-
-const mesActual = (new Date().getMonth() + 1) as Mes;
 
 export const useSimulacion = create<EstadoSimulacion>((set) => ({
   montoTexto: '',
   acumuladoTexto: '0',
-  mes: mesActual,
-  conSubsidio: true,
   setMontoTexto: (montoTexto) => set({ montoTexto }),
   setAcumuladoTexto: (acumuladoTexto) => set({ acumuladoTexto }),
-  setMes: (mes) => set({ mes }),
-  setConSubsidio: (conSubsidio) => set({ conSubsidio }),
 }));
 
 // Acepta coma como separador decimal: es lo natural al escribir números en es-AR.

@@ -1,16 +1,25 @@
 // Casos de prueba manuales del motor de cálculo.
 // Ejecutar con: npx tsx domain/casos.ts
 //
-// Valores calculados a mano contra el cuadro real de Edenor, período 07/2026
-// (Res. ENRE 206/2026), ver tarifas.ts.
+// Lo que manda es reproducir los comprobantes reales. Los tickets están en
+// .transcripciones/ (fuera de git, llevan nombre y dirección), así que los números van
+// hardcodeados acá: los casos tienen que poder correr sin ellos.
+//
+// El assert que de verdad prueba el modelo es el de PRECIOS: los $/kWh que se derivan del
+// cuadro del ENRE tienen que coincidir al milésimo con los que imprime cada ticket. Los kWh
+// y los importes se comparan con tolerancia porque el ticket redondea los kWh a 1 decimal.
 
-import { calcularKwh, calcularMes, costoIncremental, proximidadAlSalto } from './calculadora';
-import { bloqueBaseKwh, categoriaPara } from './tarifas';
-import type { Mes } from './types';
+import { calcularRecarga, montoParaKwh, proximidadAlSalto } from './calculadora';
+import { CUADROS_ENRE } from './cuadrosEnre';
+import { multiplicadorImpuestos, tarifaDe, TARIFA_VIGENTE, tramoPara } from './tarifas';
+import { RECARGA_MAXIMA, RECARGA_MINIMA, TOPES_KWH } from './types';
+
+let fallos = 0;
 
 function assertIgual(caso: string, campo: string, actual: unknown, esperado: unknown): void {
   if (actual !== esperado) {
-    throw new Error(`${caso} — ${campo}: esperado ${esperado}, obtenido ${actual}`);
+    console.error(`✗ ${caso} — ${campo}: esperado ${esperado}, obtenido ${actual}`);
+    fallos++;
   }
 }
 
@@ -19,204 +28,399 @@ function assertCerca(
   campo: string,
   actual: number,
   esperado: number,
-  tolerancia = 0.02,
+  tolerancia: number,
 ): void {
   if (Math.abs(actual - esperado) > tolerancia) {
-    throw new Error(
-      `${caso} — ${campo}: esperado ~${esperado} (±${tolerancia}), obtenido ${actual}`,
+    console.error(
+      `✗ ${caso} — ${campo}: esperado ~${esperado} (±${tolerancia}), obtenido ${actual}`,
     );
+    fallos++;
   }
 }
 
-const JULIO: Mes = 7; // bloque base 300 kWh
-const MARZO: Mes = 3; // bloque base 150 kWh
-const SIN_SUBSIDIO = { mes: JULIO, conSubsidio: false };
-const CON_SUBSIDIO = { mes: JULIO, conSubsidio: true };
-
-// ---------------------------------------------------------------------------
-// Categorías
-// ---------------------------------------------------------------------------
-
-{
-  const esperados: [number, string][] = [
-    [0, 'R1'],
-    [150, 'R1'],
-    [151, 'R2'],
-    [400, 'R2'],
-    [401, 'R3'],
-    [500, 'R3'],
-    [700, 'R5'],
-    [701, 'R6'],
-  ];
-  for (const [consumo, categoria] of esperados) {
-    assertIgual('categorías', `${consumo} kWh`, categoriaPara(consumo).categoria, categoria);
+function assertLanza(caso: string, campo: string, fn: () => unknown): void {
+  try {
+    fn();
+    console.error(`✗ ${caso} — ${campo}: debería haber lanzado y no lo hizo`);
+    fallos++;
+  } catch {
+    /* esperado */
   }
-  console.log('✓ Caso 1: el consumo mensual cae en la categoría correcta');
 }
 
 // ---------------------------------------------------------------------------
-// Energía marginal: cada kWh al precio de su categoría
+// Los 11 comprobantes con cuadro del ENRE del mismo período
 // ---------------------------------------------------------------------------
+//
+// `acumuladoPrevio` sale de restarle al "kWh Acumulados" del ticket los kWh de la compra:
+// el acumulado que imprime el papel es el de DESPUÉS de acreditar. Las cadenas cierran
+// entre tickets consecutivos (julio: 611,2 → 755,3 → 957,0 → 1125,1), que es lo que
+// confirma tanto la lectura del campo como el reseteo mensual.
+//
+// Falta el comprobante 58350 (30/10/25, tramos ≤600 y ≤700): no se consiguió el cuadro del
+// ENRE de 10/25, así que no hay con qué contrastarlo.
 
-{
-  // 400 kWh sin subsidio = 150 @ R1 (154,881) + 250 @ R2 (155,504)
-  const r = calcularMes(400, SIN_SUBSIDIO);
-  assertIgual('marginal', 'cantidad de tramos', r.tramos.length, 2);
-  assertIgual('marginal', 'kWh en R1', r.tramos[0].kwh, 150);
-  assertIgual('marginal', 'precio en R1', r.tramos[0].precioKwh, 154.881);
-  assertIgual('marginal', 'kWh en R2', r.tramos[1].kwh, 250);
-  assertIgual('marginal', 'precio en R2', r.tramos[1].precioKwh, 155.504);
-  assertIgual('marginal', 'energía', r.costoEnergia, 62108.15);
-  assertIgual('marginal', 'cargo fijo (categoría final R2)', r.cargoFijo, 3648.68);
-  assertIgual('marginal', 'total', r.total, 65756.83);
-  console.log('✓ Caso 2: la energía se cobra marginalmente por tramo');
-}
+type CasoTicket = {
+  id: string;
+  periodo: string;
+  monto: number;
+  acumuladoPrevio: number;
+  /** [tope del tramo, precio impreso, kWh impresos, importe impreso] */
+  renglones: [number, number, number, number][];
+  subtotalA: number;
+  subtotalB: number;
+  tasaMunicipal: number;
+  kwhTotal: number;
+  acumuladoFinal: number;
+};
 
-// ---------------------------------------------------------------------------
-// El salto de categoría: lo caro es el cargo fijo, no el kWh que cruza
-// ---------------------------------------------------------------------------
+const TICKETS: CasoTicket[] = [
+  {
+    id: '58351 (nov/25, primera carga del mes, cruza 3 tramos)',
+    periodo: '2025-11',
+    monto: 40000,
+    acumuladoPrevio: 0,
+    renglones: [
+      [150, 59.64, 150.0, 8946.0],
+      [400, 69.343, 250.0, 17335.75],
+      [500, 221.964, 17.9, 3969.18],
+    ],
+    subtotalA: 30250.93,
+    subtotalB: 8289.21,
+    tasaMunicipal: 1459.86,
+    kwhTotal: 417.9,
+    acumuladoFinal: 417.9,
+  },
+  {
+    id: '58349 (28/11/25, cruza 700 hacia el tramo más barato)',
+    periodo: '2025-11',
+    monto: 40000,
+    acumuladoPrevio: 696.4,
+    renglones: [
+      [700, 292.229, 3.6, 1052.02],
+      [1400, 171.98, 176.5, 30347.98],
+    ],
+    subtotalA: 31400.0,
+    subtotalB: 8600.0,
+    tasaMunicipal: 0,
+    kwhTotal: 180.1,
+    acumuladoFinal: 876.5,
+  },
+  {
+    id: '58348 (dic/25, primera carga del mes, cruza 3 tramos)',
+    periodo: '2025-12',
+    monto: 40000,
+    acumuladoPrevio: 0,
+    renglones: [
+      [150, 61.675, 150.0, 9251.25],
+      [400, 71.498, 250.0, 17874.5],
+      [500, 226.786, 13.9, 3143.17],
+    ],
+    subtotalA: 30268.92,
+    subtotalB: 8285.19,
+    tasaMunicipal: 1445.89,
+    kwhTotal: 413.9,
+    acumuladoFinal: 413.9,
+  },
+  {
+    id: '58337 (14/02/26, cruza 600: la tasa municipal corta ahí)',
+    periodo: '2026-02',
+    monto: 40000,
+    acumuladoPrevio: 534.9,
+    renglones: [
+      [600, 222.364, 65.1, 14475.9],
+      [700, 327.69, 50.9, 16665.91],
+    ],
+    subtotalA: 31141.81,
+    subtotalB: 8517.07,
+    tasaMunicipal: 341.12,
+    kwhTotal: 116.0,
+    acumuladoFinal: 650.9,
+  },
+  {
+    id: '58338 (01/03/26, consumo base 150: el ≤400 pasa a ser todo excedente)',
+    periodo: '2026-03',
+    monto: 40000,
+    acumuladoPrevio: 0,
+    renglones: [
+      [150, 64.454, 150.0, 9668.1],
+      [400, 139.626, 146.9, 20507.29],
+    ],
+    subtotalA: 30175.39,
+    subtotalB: 8268.85,
+    tasaMunicipal: 1555.76,
+    kwhTotal: 296.9,
+    acumuladoFinal: 296.9,
+  },
+  {
+    id: '58339 (01/04/26, consumo base 150)',
+    periodo: '2026-04',
+    monto: 40000,
+    acumuladoPrevio: 0,
+    renglones: [
+      [150, 67.958, 150.0, 10193.7],
+      [400, 140.585, 142.3, 20001.11],
+    ],
+    subtotalA: 30194.81,
+    subtotalB: 8273.54,
+    tasaMunicipal: 1531.65,
+    kwhTotal: 292.3,
+    acumuladoFinal: 292.3,
+  },
+  {
+    // La transcripción dice "COMPRA ACTUAL 40.000,00", pero A + B = 60.000,00 exacto y el
+    // 58215 es el mismo ticket con acumulado distinto y dice 60.000. Es un error de
+    // transcripción del monto, no del resto.
+    id: '58322 (19/06/26)',
+    periodo: '2026-06',
+    monto: 60000,
+    acumuladoPrevio: 914.2,
+    renglones: [[1400, 222.893, 211.3, 47092.85]],
+    subtotalA: 47092.85,
+    subtotalB: 12907.15,
+    tasaMunicipal: 0,
+    kwhTotal: 211.3,
+    acumuladoFinal: 1125.5,
+  },
+  {
+    id: '58215 (23/06/26, el acumulado más alto visto: 1336,8)',
+    periodo: '2026-06',
+    monto: 60000,
+    acumuladoPrevio: 1125.5,
+    renglones: [[1400, 222.893, 211.3, 47092.85]],
+    subtotalA: 47092.85,
+    subtotalB: 12907.15,
+    tasaMunicipal: 0,
+    kwhTotal: 211.3,
+    acumuladoFinal: 1336.8,
+  },
+  {
+    id: '58214 (13/07/26, el que probó que la recarga se PARTE entre tramos)',
+    periodo: '2026-07',
+    monto: 60000,
+    acumuladoPrevio: 611.2,
+    renglones: [
+      [700, 385.08, 88.8, 34195.1],
+      [1400, 233.477, 55.3, 12902.98],
+    ],
+    subtotalA: 47098.08,
+    subtotalB: 12901.92,
+    tasaMunicipal: 0,
+    kwhTotal: 144.1,
+    acumuladoFinal: 755.3,
+  },
+  {
+    id: '58213 (18/07/26)',
+    periodo: '2026-07',
+    monto: 60000,
+    acumuladoPrevio: 755.3,
+    renglones: [[1400, 233.477, 201.7, 47089.99]],
+    subtotalA: 47089.99,
+    subtotalB: 12910.01,
+    tasaMunicipal: 0,
+    kwhTotal: 201.7,
+    acumuladoFinal: 957.0,
+  },
+  {
+    id: '009402425710 (26/07/26, el comprobante original del proyecto)',
+    periodo: '2026-07',
+    monto: 50000,
+    acumuladoPrevio: 957.0,
+    renglones: [[1400, 233.477, 168.1, 39243.89]],
+    subtotalA: 39243.89,
+    subtotalB: 10756.11,
+    tasaMunicipal: 0,
+    kwhTotal: 168.1,
+    acumuladoFinal: 1125.1,
+  },
+];
 
-{
-  const en400 = calcularMes(400, SIN_SUBSIDIO);
-  const en401 = calcularMes(401, SIN_SUBSIDIO);
+for (const t of TICKETS) {
+  const tarifa = tarifaDe(t.periodo);
+  const r = calcularRecarga(t.monto, t.acumuladoPrevio, tarifa);
 
-  // El kWh 401 vale $167,037 de energía...
-  assertCerca('salto', 'energía del kWh 401', en401.costoEnergia - en400.costoEnergia, 167.04);
-  // ...pero arrastra el cargo fijo de R2 a R3.
-  assertIgual('salto', 'cargo fijo en 401', en401.cargoFijo, 11981.48);
-  assertIgual('salto', 'total en 401', en401.total, 74256.67);
+  // 1. Los precios derivados del cuadro contra los impresos. Es la prueba de que la fórmula
+  //    es la correcta.
+  //
+  //    Tolerancia 0,001 = una unidad en el último dígito que imprime el ticket. Hace falta
+  //    porque el emisor no redondea de forma consistente: en el 58351 el ≤500 sale 221,9634
+  //    y lo imprime 221,964 (hacia arriba), y en el 58322 el ≤1400 sale 222,89387 y lo
+  //    imprime 222,893 (truncado). El desvío es de 4 diezmilésimas de peso por kWh.
+  assertIgual(t.id, 'cantidad de renglones', r.renglones.length, t.renglones.length);
+  t.renglones.forEach(([tope, precio], i) => {
+    const renglon = r.renglones[i];
+    if (!renglon) return;
+    assertIgual(t.id, `renglón ${i + 1} tope`, renglon.hastaKwhAcumulados, tope);
+    assertCerca(t.id, `renglón ${i + 1} $/kWh`, renglon.precioKwh, precio, 0.001);
+  });
 
-  const p = proximidadAlSalto(390, SIN_SUBSIDIO);
-  assertIgual('salto', 'categoría actual', p.categoriaActual, 'R2');
-  assertIgual('salto', 'categoría siguiente', p.categoriaSiguiente, 'R3');
-  assertIgual('salto', 'kWh hasta el salto', p.kwhHastaElSalto, 10);
-  assertIgual('salto', 'salto del cargo fijo', p.saltoCargoFijo, 8332.8);
+  // 2. Los kWh, que es el número que le importa al usuario.
+  //
+  //    Tolerancia 0,1 por renglón: el ticket los imprime con 1 decimal (±0,05) y el último
+  //    renglón arrastra además el redondeo de los anteriores. Se puede ver en el 58348, que
+  //    imprime "13,9" pero cuyo propio importe (3.143,17 / 226,786) implica 13,86.
+  const tolKwh = 0.1 * t.renglones.length;
+  assertCerca(t.id, 'kWh acreditados', r.kwh, t.kwhTotal, tolKwh);
+  assertCerca(t.id, 'acumulado final', r.acumuladoFinalKwh, t.acumuladoFinal, tolKwh);
+  t.renglones.forEach(([, , kwh], i) => {
+    if (r.renglones[i]) assertCerca(t.id, `renglón ${i + 1} kWh`, r.renglones[i].kwh, kwh, 0.1);
+  });
 
-  // El costo incremental de cruzar incluye el salto del cargo fijo.
-  assertIgual('salto', 'cruzar de 400 a 401', costoIncremental(400, 1, SIN_SUBSIDIO), 8499.84);
-
-  const enR6 = proximidadAlSalto(900, SIN_SUBSIDIO);
-  assertIgual('salto', 'R6 no tiene siguiente', enR6.categoriaSiguiente, null);
-  console.log('✓ Caso 3: cruzar de R2 a R3 cuesta $8.499,84 — casi todo cargo fijo');
-}
-
-// ---------------------------------------------------------------------------
-// Bloque base estacional
-// ---------------------------------------------------------------------------
-
-{
-  assertIgual('bloque base', 'julio', bloqueBaseKwh(JULIO), 300);
-  assertIgual('bloque base', 'marzo', bloqueBaseKwh(MARZO), 150);
-
-  // Julio: los 300 kWh entran enteros en el bloque bonificado.
-  const julio = calcularMes(300, CON_SUBSIDIO);
-  assertIgual('bloque base', 'tramos en julio', julio.tramos.length, 2);
-  assertIgual(
-    'bloque base',
-    'todo bonificado en julio',
-    julio.tramos.every((t) => t.bonificado),
-    true,
-  );
-  assertIgual('bloque base', 'energía en julio', julio.costoEnergia, 20884.35);
-
-  // Marzo: solo los primeros 150 kWh están bonificados.
-  const marzo = calcularMes(300, { mes: MARZO, conSubsidio: true });
-  assertIgual('bloque base', 'bonificado el primer tramo', marzo.tramos[0].bonificado, true);
-  assertIgual('bloque base', 'sin bonificar el segundo', marzo.tramos[1].bonificado, false);
-  assertIgual('bloque base', 'energía en marzo', marzo.costoEnergia, 33721.05);
-
-  if (marzo.total <= julio.total) {
-    throw new Error('bloque base — el mismo consumo debería costar más en marzo que en julio');
-  }
-  console.log('✓ Caso 4: el bloque base estacional cambia el costo del mismo consumo');
-}
-
-// ---------------------------------------------------------------------------
-// El acumulado define desde qué categoría se compra
-// ---------------------------------------------------------------------------
-
-{
-  // Con 350 kWh ya consumidos en julio, el bloque base (300) está agotado: se compra
-  // a precio pleno, arrancando en R2 y cruzando a R3 a los 400.
-  const r = calcularKwh(60000, CON_SUBSIDIO, 350);
-  assertIgual('acumulado', 'arranca en R2', r.tramos[0].categoria, 'R2');
-  assertIgual(
-    'acumulado',
-    'nada bonificado',
-    r.tramos.every((t) => !t.bonificado),
-    true,
-  );
-  assertIgual('acumulado', 'primer tramo hasta la frontera', r.tramos[0].kwh, 50);
-  assertIgual('acumulado', 'segundo tramo en R3', r.tramos[1].categoria, 'R3');
-  assertCerca('acumulado', 'kWh comprados', r.kwhComprados, 357.17);
-  assertIgual('acumulado', 'consumo final', r.consumoFinalKwh, 707.17);
-  assertIgual('acumulado', 'categoría final', r.categoriaFinal, 'R6');
-
-  // El mismo monto arrancando de cero rinde más, porque aprovecha el bloque bonificado.
-  const desdeCero = calcularKwh(60000, CON_SUBSIDIO, 0);
-  if (desdeCero.kwhComprados <= r.kwhComprados) {
-    throw new Error('acumulado — arrancar de cero debería rendir más que con 350 kWh ya gastados');
-  }
-  console.log('✓ Caso 5: el acumulado del mes cambia cuánto rinde la misma plata');
-}
-
-// ---------------------------------------------------------------------------
-// Ida y vuelta: directa ↔ inversa (sobre la energía, sin cargo fijo)
-// ---------------------------------------------------------------------------
-
-{
-  const escenarios: { acumulado: number; consumo: number; mes: Mes; conSubsidio: boolean }[] = [
-    { acumulado: 0, consumo: 100, mes: JULIO, conSubsidio: true },
-    { acumulado: 0, consumo: 300, mes: JULIO, conSubsidio: true },
-    { acumulado: 0, consumo: 300, mes: MARZO, conSubsidio: true },
-    { acumulado: 350, consumo: 150, mes: JULIO, conSubsidio: true },
-    { acumulado: 0, consumo: 450, mes: JULIO, conSubsidio: false },
-    { acumulado: 690, consumo: 60, mes: JULIO, conSubsidio: false },
-  ];
-
-  for (const { acumulado, consumo, mes, conSubsidio } of escenarios) {
-    const opciones = { mes, conSubsidio };
-    const hasta = calcularMes(acumulado + consumo, opciones);
-    const desde = calcularMes(acumulado, opciones);
-    const soloEnergia = hasta.costoEnergia - desde.costoEnergia;
-
-    const vuelta = calcularKwh(soloEnergia, opciones, acumulado);
-    assertCerca(
-      `ida y vuelta (acum ${acumulado} + ${consumo} kWh, mes ${mes})`,
-      'kWh recuperados',
-      vuelta.kwhComprados,
-      consumo,
-    );
-  }
-  console.log('✓ Caso 6: ida y vuelta directa ↔ inversa en 6 escenarios');
-}
-
-// ---------------------------------------------------------------------------
-// Bordes
-// ---------------------------------------------------------------------------
-
-{
-  const cero = calcularMes(0, SIN_SUBSIDIO);
-  assertIgual('bordes', 'consumo 0 cae en R1', cero.categoriaFinal, 'R1');
-  assertIgual('bordes', 'energía con consumo 0', cero.costoEnergia, 0);
-  assertIgual('bordes', 'cargo fijo con consumo 0', cero.total, 1710.71);
-
-  assertIgual('bordes', 'monto 0 no compra nada', calcularKwh(0, SIN_SUBSIDIO, 0).kwhComprados, 0);
-
-  for (const [nombre, fn] of [
-    ['monto negativo', () => calcularKwh(-1, SIN_SUBSIDIO, 0)],
-    ['acumulado negativo', () => calcularKwh(100, SIN_SUBSIDIO, -1)],
-    ['consumo negativo', () => calcularMes(-1, SIN_SUBSIDIO)],
-  ] as const) {
-    let rechazado = false;
-    try {
-      fn();
-    } catch {
-      rechazado = true;
+  // 3. Los importes. La tolerancia se deriva del redondeo de kWh: medio decilitro de kWh a
+  //    ~$390 el kWh son ~$20 por renglón, no es holgura arbitraria.
+  const tolPesos = 25 * t.renglones.length;
+  assertCerca(t.id, 'Subtotal A (energía)', r.subtotalEnergia, t.subtotalA, tolPesos);
+  assertCerca(t.id, 'Subtotal B (impuestos)', r.subtotalImpuestos, t.subtotalB, tolPesos);
+  assertCerca(t.id, 'Tasa Municipal', r.tasaMunicipal, t.tasaMunicipal, tolPesos);
+  t.renglones.forEach(([, , , importe], i) => {
+    if (r.renglones[i]) {
+      assertCerca(t.id, `renglón ${i + 1} importe`, r.renglones[i].importe, importe, 25);
     }
-    assertIgual('bordes', `${nombre} rechazado`, rechazado, true);
-  }
-  console.log('✓ Caso 7: consumo cero, monto cero y validación de negativos');
+  });
+
+  // 4. La identidad que define el modelo. Acá no hay tolerancia que valga: el motor reparte
+  //    el monto, así que tiene que cerrar contra el monto exacto.
+  assertCerca(
+    t.id,
+    'A + B + Tasa = monto recargado',
+    r.subtotalEnergia + r.subtotalImpuestos + r.tasaMunicipal,
+    t.monto,
+    0.02,
+  );
 }
 
+console.log(
+  `✓ Caso 1: ${TICKETS.length} comprobantes reales, precios derivados del cuadro del ENRE`,
+);
+
+// ---------------------------------------------------------------------------
+// La fórmula del ENRE, mirada de cerca
+// ---------------------------------------------------------------------------
+
+{
+  // Los topes de la escalera son los bloques del cuadro, en todos los períodos.
+  for (const cuadro of CUADROS_ENRE) {
+    assertIgual(
+      `cuadro ${cuadro.periodo}`,
+      'topes de bloque',
+      cuadro.bloques.map((b) => b.hastaKwh).join(','),
+      TOPES_KWH.join(','),
+    );
+  }
+
+  // La escalera NO es monótona: sube hasta 700 y baja fuerte en el ≤1400, porque ahí el
+  // cargo fijo se reparte sobre 700 kWh de ancho en vez de 100. Si esto se rompe, alguien
+  // "arregló" la fórmula asumiendo que los precios crecen.
+  const t = tarifaDe('2026-07');
+  const precios = t.tramos.map((x) => x.precioKwh);
+  assertIgual('escalera', 'el ≤700 es el más caro', Math.max(...precios), precios[4]);
+  assertIgual('escalera', 'el ≤1400 es más barato que el ≤700', precios[5] < precios[4], true);
+  assertIgual('escalera', 'el ≤500 es más caro que el ≤600', precios[2] > precios[3], true);
+
+  // El período vigente quedó completo: los 6 tramos tienen precio, incluidos los 4 que
+  // ningún ticket de julio prueba.
+  assertIgual('vigente', 'tramos con precio', TARIFA_VIGENTE.tramos.length, 6);
+  assertIgual(
+    'vigente',
+    'todos los precios son finitos',
+    TARIFA_VIGENTE.tramos.every((x) => Number.isFinite(x.precioKwh) && x.precioKwh > 0),
+    true,
+  );
+
+  console.log('✓ Caso 2: la escalera sale del cuadro y no es monótona');
+}
+
+// ---------------------------------------------------------------------------
+// Los impuestos y la tasa salen del monto, no se suman encima
+// ---------------------------------------------------------------------------
+
+{
+  assertCerca('impuestos', 'multiplicador', multiplicadorImpuestos(), 1.273885, 0.0001);
+
+  // Arriba de 600 kWh no hay tasa municipal, así que la proporción es solo impuestos.
+  const r = calcularRecarga(50000, 700);
+  assertCerca(
+    'impuestos',
+    'proporción que compra energía',
+    r.subtotalEnergia / 50000,
+    0.785,
+    0.001,
+  );
+
+  // Por debajo de 600 la tasa municipal se lleva su parte, y hay que verla en el resultado.
+  const conTasa = calcularRecarga(40000, 0, tarifaDe('2026-03'));
+  assertCerca('tasa municipal', 'sobre 296,9 kWh a $5,24', conTasa.tasaMunicipal, 1555.76, 25);
+  assertIgual('tasa municipal', 'es mayor a cero bajo 600', conTasa.tasaMunicipal > 0, true);
+
+  console.log('✓ Caso 3: impuestos y tasa municipal salen del monto recargado');
+}
+
+// ---------------------------------------------------------------------------
+// Ida y vuelta con el monto, incluso cruzando tramos
+// ---------------------------------------------------------------------------
+
+{
+  // Tolerancia de $2: calcularRecarga redondea los kWh a 2 decimales y a ~$490 el kWh con
+  // impuestos, medio centésimo ya vale $2,45.
+  for (const acumulado of [0, 500, 611.2, 1000]) {
+    for (const monto of [RECARGA_MINIMA, 20000, 50000, RECARGA_MAXIMA]) {
+      const r = calcularRecarga(monto, acumulado);
+      const vuelta = montoParaKwh(r.kwh, acumulado);
+      assertCerca(`ida y vuelta (${monto} desde ${acumulado})`, 'monto', vuelta, monto, 3);
+    }
+  }
+  console.log('✓ Caso 4: ida y vuelta monto ↔ kWh, en 4 acumulados y 4 montos');
+}
+
+// ---------------------------------------------------------------------------
+// El salto de tramo y su signo
+// ---------------------------------------------------------------------------
+
+{
+  const p = proximidadAlSalto(611.2, tarifaDe('2026-07'));
+  assertCerca('salto', 'precio actual (≤700)', p.precioActual, 385.08, 0.001);
+  assertCerca('salto', 'kWh hasta el salto', p.kwhHastaElSalto ?? -1, 88.8, 0.01);
+  assertCerca('salto', 'precio siguiente (≤1400)', p.precioSiguiente ?? -1, 233.477, 0.001);
+
+  // Cruzar 700 ABARATA el kWh. Si esto sale positivo, la UI va a avisar de un
+  // encarecimiento que no existe.
+  assertIgual('salto', 'la variación es negativa', (p.variacionPorKwh ?? 0) < 0, true);
+
+  // En el último tramo no hay siguiente.
+  const ultimo = proximidadAlSalto(1300, tarifaDe('2026-07'));
+  assertIgual('salto', 'sin tramo siguiente en el ≤1400', ultimo.precioSiguiente, null);
+
+  console.log('✓ Caso 5: el salto de 700 kWh abarata el kWh, y se reporta con signo');
+}
+
+// ---------------------------------------------------------------------------
+// Bordes: lo desconocido falla, no se inventa
+// ---------------------------------------------------------------------------
+
+{
+  assertIgual('bordes', 'tramo dentro de la escalera', tramoPara(1125.1)?.hastaKwhAcumulados, 1400);
+  assertIgual('bordes', 'justo en el tope', tramoPara(1400)?.hastaKwhAcumulados, 1400);
+  assertIgual('bordes', 'pasado el tope no hay dato', tramoPara(1400.1), null);
+
+  assertIgual('bordes', 'monto 0 no acredita nada', calcularRecarga(0, 0).kwh, 0);
+
+  assertLanza('bordes', 'acumulado arriba de 1400', () => calcularRecarga(10000, 1500));
+  assertLanza('bordes', 'monto negativo', () => calcularRecarga(-1, 0));
+  assertLanza('bordes', 'acumulado negativo', () => calcularRecarga(1000, -1));
+  assertLanza('bordes', 'kWh negativos', () => montoParaKwh(-1, 0));
+  assertLanza('bordes', 'período sin cuadro', () => tarifaDe('2025-10'));
+
+  // Una recarga que no cabe en la escalera tampoco se puede liquidar: los kWh de más no
+  // tienen precio conocido.
+  assertLanza('bordes', 'recarga que desborda el ≤1400', () =>
+    calcularRecarga(RECARGA_MAXIMA, 1399),
+  );
+
+  console.log('✓ Caso 6: fuera de la escalera falla en vez de extrapolar');
+}
+
+if (fallos > 0) {
+  console.error(`\n${fallos} assert(s) fallaron.`);
+  process.exit(1);
+}
 console.log('\nTodos los casos pasan.');

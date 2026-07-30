@@ -1,83 +1,126 @@
-// Modelo del cuadro tarifario residencial de Edenor (Tarifa 1 - R).
+// Modelo de una recarga de MIDE.
 //
-// Dos mecanismos se combinan:
+// En MIDE no hay factura: se recarga un monto, el medidor acredita kWh y cuando llegan a
+// cero se corta el servicio. El monto de la recarga es BRUTO y se reparte en tres cosas:
 //
-// 1. La ENERGÍA se cobra de forma marginal: cada kWh se paga al precio de la
-//    categoría en la que cae ese kWh. Cruzar una frontera encarece los kWh
-//    siguientes, no los ya consumidos.
-// 2. El CARGO FIJO lo determina la categoría en la que termina el mes, así que sí
-//    se aplica retroactivamente: terminar el mes un kWh más arriba puede subirlo
-//    varios miles de pesos.
+//   Subtotal A (energía) + Subtotal B (impuestos) + Tasa Municipal = monto recargado
 //
-// SUPUESTO A VALIDAR: el punto 1 es la interpretación de cómo cobra MIDE, todavía
-// sin contrastar contra una factura ni un ticket de recarga.
+// La energía se cobra en ESCALERA sobre el consumo acumulado del mes, que se resetea cada
+// mes. Una recarga que cruza un umbral se parte: el ticket imprime un renglón por tramo
+// atravesado.
+//
+// El precio de cada tramo NO es un dato del ticket: se DERIVA del cuadro tarifario T1-R
+// que publica el ENRE (ver cuadrosEnre.ts y precioTramo() en tarifas.ts). Los 12
+// comprobantes de .transcripciones/ son el set de validación de esa derivación, no la
+// fuente. Verificado: 17 tramos en 7 períodos, error 0,000 %.
 
-export type Categoria = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6';
+export type Nivel = 'N1' | 'N2' | 'N3';
 
-export type FilaCategoria = {
-  categoria: Categoria;
-  desdeKwh: number;
-  hastaKwh: number | null; // null = sin tope (R6)
-  cargoFijo: number; // mensual, lo fija la categoría en la que termina el mes
-  precioSinSubsidio: number; // $/kWh
-  precioBase: number; // $/kWh bonificado, solo dentro del bloque base
-};
+/**
+ * Topes de los bloques R1-R6 del cuadro T1-R, en kWh acumulados del mes. Son la escalera
+ * de MIDE: coinciden con los bloques del ENRE en todos los períodos vistos.
+ *
+ * El 1400 es el tope que MIDE le asigna a R6, que en el cuadro figura como "+700" sin
+ * techo. Sale del ticket, que imprime ese tramo como "Hasta 1400kWh". Arriba de 1400 no
+ * hay tramo definido y el motor lanza error: ningún comprobante lo cruza (el acumulado
+ * más alto visto es 1336,8).
+ */
+export const TOPES_KWH = [150, 400, 500, 600, 700, 1400] as const;
 
-export type CuadroTarifario = {
-  distribuidora: string;
-  periodo: string; // 'YYYY-MM'
-  resolucion: string; // norma que lo respalda
-  vigenciaDesde: string; // 'YYYY-MM-DD'
-  fuente: string;
-  categorias: FilaCategoria[];
-};
+/**
+ * La tasa municipal solo grava los kWh comprados por debajo de este acumulado. Coincide
+ * con un tope de la escalera, lo que hace que el costo marginal del kWh sea constante
+ * dentro de cada tramo — de ahí que la inversa monto → kWh sea exacta y no iterativa.
+ */
+export const TOPE_TASA_MUNICIPAL_KWH = 600;
 
-/** Mes del año, 1 = enero. El bloque base bonificado depende de la estación. */
-export type Mes = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-
-/** Un tramo homogéneo de consumo: mismo precio de punta a punta. */
-export type TramoConsumido = {
-  desdeKwh: number;
+/** Un bloque (R1..R6) del cuadro tarifario T1-R del ENRE. */
+export type BloqueEnre = {
+  /** Tope de consumo mensual del bloque, en kWh. */
   hastaKwh: number;
-  kwh: number;
-  categoria: Categoria;
-  bonificado: boolean;
-  precioKwh: number;
-  subtotal: number;
+  cargoFijo: number; // $/mes
+  cargoVariableBase: number; // $/kWh hasta el consumo base
+  /** $/kWh pasado el consumo base. null en R1, donde nunca aplica. */
+  cargoVariableExcedente: number | null;
 };
 
-export type ResultadoMensual = {
-  consumoKwh: number;
-  categoriaFinal: Categoria;
-  cargoFijo: number;
-  bloqueBaseKwh: number;
-  costoEnergia: number;
-  total: number; // costoEnergia + cargoFijo
-  tramos: TramoConsumido[];
+/** Cuadro tarifario de un período, tal como lo publica el ENRE. */
+export type CuadroEnre = {
+  periodo: string; // 'YYYY-MM'
+  distribuidora: string;
+  nivel: Nivel;
+  /**
+   * Consumo base mensual subsidiado, en kWh. Es estacional: 300 en dic-feb y may-ago,
+   * 150 en mar-abr y sep-nov. El régimen anterior a 2026 usaba 350 fijo.
+   */
+  consumoBaseKwh: number;
+  bloques: BloqueEnre[];
+  fuente: string;
+};
+
+/** Tasas de impuestos, como fracción del subtotal de energía. */
+export type Impuestos = {
+  iva: number;
+  contribucionMunicipal: number;
+  contribucionProvincial: number;
+};
+
+/** Un tramo de la escalera de MIDE, con el precio ya derivado del cuadro. */
+export type TramoPrecio = {
+  hastaKwhAcumulados: number;
+  precioKwh: number;
 };
 
 /**
- * Cuánto falta para que el mes termine en la categoría siguiente, y cuánto encarece
- * la factura ese salto. El grueso del salto es el cargo fijo, que se recalcula por
- * la categoría final.
+ * Todo lo que hace falta para liquidar una recarga en un período.
+ *
+ * Los tramos salen del cuadro del ENRE; la tasa municipal no, porque es un cargo del
+ * municipio que el cuadro no publica y solo se conoce por los tickets.
  */
-export type ProximidadSalto = {
-  categoriaActual: Categoria;
-  categoriaSiguiente: Categoria | null; // null = ya está en R6
-  kwhHastaElSalto: number | null;
-  totalActual: number;
-  totalTrasElSalto: number | null;
-  saltoTotal: number | null;
-  saltoCargoFijo: number | null; // parte del salto que viene del cargo fijo
+export type TarifaMide = {
+  periodo: string;
+  distribuidora: string;
+  nivel: Nivel;
+  tramos: TramoPrecio[];
+  tasaMunicipalPorKwh: number;
+  /** true si la tasa municipal se heredó de un período anterior por no tener el dato. */
+  tasaMunicipalHeredada: boolean;
+  impuestos: Impuestos;
 };
 
-export type ResultadoInverso = {
-  monto: number;
+/** Un renglón de energía del ticket: tantos kWh a tal precio. */
+export type RenglonTramo = {
+  hastaKwhAcumulados: number;
+  precioKwh: number;
+  kwh: number;
+  importe: number;
+};
+
+/** Mismos campos que imprime el comprobante, para poder contrastarlo de un vistazo. */
+export type ResultadoRecarga = {
+  montoBruto: number;
+  /** Un renglón por tramo atravesado, en el orden en que los imprime el ticket. */
+  renglones: RenglonTramo[];
+  subtotalEnergia: number; // Subtotal A
+  iva: number;
+  contribucionMunicipal: number;
+  contribucionProvincial: number;
+  subtotalImpuestos: number; // Subtotal B
+  tasaMunicipal: number;
+  kwh: number;
+  /** Promedio ponderado con impuestos y tasa incluidos: lo que de verdad se paga por kWh. */
+  precioEfectivoPorKwh: number;
   acumuladoPrevioKwh: number;
-  kwhComprados: number;
-  consumoFinalKwh: number; // acumulado + comprados
-  categoriaFinal: Categoria;
-  tramos: TramoConsumido[];
+  acumuladoFinalKwh: number;
+};
+
+/** Distancia al cambio de tramo de precio. */
+export type ProximidadSalto = {
+  precioActual: number;
+  precioSiguiente: number | null; // null = ya está en el último tramo (≤1400)
+  kwhHastaElSalto: number | null;
+  /** Positivo = más caro del otro lado; negativo = más barato (lo que pasa cruzando 700). */
+  variacionPorKwh: number | null;
 };
 
 /** Límites de una recarga individual en MIDE. */
