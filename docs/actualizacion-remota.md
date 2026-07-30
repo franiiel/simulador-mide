@@ -99,53 +99,84 @@ período. `cuadrosEnre.ts` filtra a Edenor N2 y hay un caso de prueba que lo cub
 
 ## El lado de la app
 
-Más delicado que el workflow, porque acá se pueden introducir errores silenciosos.
+Era la parte delicada, porque acá los errores no se ven: el peor caso no es que la app falle
+sino que calcule bien con datos equivocados. Así quedó resuelto.
 
-**Validar el JSON remoto antes de usarlo.** Un JSON corrupto, truncado o con otro shape no debe
-llegar al motor. `zod` ya está en el proyecto (`^4.4.3`) y se usa para validar formularios;
-conviene un esquema para `CuadroEnre[]` y descartar el remoto si no valida, cayendo al cacheado
-o al embebido. Sin esto, el peor caso no es que la app falle sino que calcule mal.
+**Un solo filtro.** `normalizarCuadros()` (en `domain/cuadrosEnre.ts`) se exporta y lo usan
+tanto el embebido como el remoto. Dos filtros parecidos hacia los mismos datos es exactamente
+cómo se cuela un cuadro N1 —sin subsidio— sin que nada avise.
 
-**No bloquear el arranque.** La app tiene que calcular de inmediato con lo embebido o cacheado y
-refrescar en background. El JSON son 84 KB.
+**Lo vigente son funciones, no constantes.** `periodoVigente()` y `tarifaVigente()` reemplazaron
+a `PERIODO_VIGENTE` y `TARIFA_VIGENTE`. Como defaults de parámetro se evalúan en cada llamada,
+así que el motor no cambió: ya recibía `tarifa` explícita en todas sus funciones.
 
-**Decidir cuándo el remoto gana.** Lo simple y suficiente: usarlo si su período máximo es mayor
-o igual al del embebido. Nunca reemplazar por algo más viejo.
+**`usarCuadros()` concentra qué origen gana**: rechaza lista vacía (un JSON válido puede quedar
+en nada después del filtro), rechaza un período máximo menor al vigente, y acepta mayor o igual.
+Una vez que entró un cuadro nuevo, ni el embebido puede hacerlo retroceder.
 
-**Hace falta una dependencia nueva.** No hay nada para persistir: `@react-native-async-storage/async-storage`
-no está instalado (tampoco `expo-file-system`). `AGENTS.md` pide no agregar dependencias hasta
-que una feature concreta las necesite — esta la necesita, y conviene dejarlo dicho en el commit.
-`axios` ya está (`^1.18.1`), aunque `fetch` alcanza.
+**Validación con zod** en `domain/esquemaCuadros.ts`. `parsearCuadros()` devuelve `null` en vez
+de lanzar: un remoto inválido se descarta y la app sigue con lo que tenía. El chequeo menos
+obvio es que los topes de `bloques` sean exactamente `TOPES_KWH` — ver el trade-off abajo.
 
-**Consecuencia esperada, no bug:** cuando el Action agregue un período nuevo, `PERIODO_VIGENTE`
-pasa a ser ese automáticamente y **la tasa municipal se hereda** del último período con
-comprobante, porque el ENRE no la publica. La app ya avisa en pantalla cuando la está heredando.
-No hay nada que arreglar, pero conviene saber que un cuadro nuevo activa ese aviso.
+**El esquema no puede ser más estricto que los datos reales.** Ya falló una vez: pedir
+`consumoBaseKwh > 0` tiraba los 2024 enteros, que legítimamente lo traen en cero (N1 no tiene
+subsidio, y N2 tampoco lo tuvo hasta mediados de ese año). El caso 9 de `casos.ts` valida el
+JSON embebido contra el esquema justamente para atrapar eso: un esquema de más rechazaría el
+archivo bueno y la app dejaría de actualizarse **en silencio y para siempre**.
+
+**No bloquea el arranque.** El store arranca con el embebido ya resuelto y `App.tsx` dispara
+`refrescar()` en un `useEffect` sin `await`. La pantalla se actualiza sola cuando el store
+cambia.
+
+**`.text()` + `JSON.parse()` a mano**, no `res.json()`: la URL puede devolver 200 con algo que
+no es JSON (un README, una página de error), y así el fallo cae en el `catch` en vez de
+propagarse.
+
+**Dependencias.** Entró `@react-native-async-storage/async-storage` (2.2.0) para el cache, que
+es la única forma de cubrir el arranque sin red. Se sacó `axios`, que estaba declarado y no se
+importaba en ningún lado; el `fetch` nativo alcanza. `date-fns` sigue instalado sin usarse.
+
+**Consecuencia esperada, no bug:** cuando el Action agregue un período nuevo, el vigente pasa a
+ser ese automáticamente y **la tasa municipal se hereda** del último período con comprobante,
+porque el ENRE no la publica. La app ya avisa en pantalla cuando la está heredando. No hay nada
+que arreglar, pero conviene saber que un cuadro nuevo activa ese aviso.
+
+**Trade-off asumido con la escalera.** El esquema rechaza un cuadro cuyos bloques no sean
+`TOPES_KWH`, porque `TOPE_TASA_MUNICIPAL_KWH = 600` asume que 600 es un tope: de ahí sale que el
+costo marginal sea constante dentro del tramo y que la inversa monto → kWh se resuelva con una
+división. Con otra escalera esa propiedad se cae sin que nada falle. Si el ENRE algún día cambia
+los bloques de verdad, la app se queda con el cuadro viejo hasta que se publique una versión —
+viejo es mejor que mal, pero deja de actualizarse en silencio.
 
 ## Verificación
 
-Del lado del Action, ya hecha (ver "Estado"):
+Toda hecha. Los caminos de la app se probaron con `pnpm web` apuntando `URL` a propósito a
+cosas distintas, y borrando `localStorage` entre corridas.
 
-1. **En seco, con `workflow_dispatch`**: que el TLS del ENRE funcione en Ubuntu y que no genere
-   diff cuando el período ya está.
-2. **Un caso real de actualización**: forzar el estado eliminando el último período del JSON,
-   correr el Action y ver que lo vuelve a agregar en un commit limpio.
-
-Del lado de la app, pendiente:
-
-3. **`uv run scraper/main.py --check`** sigue siendo el test del scraper, y
-   **`npx tsx domain/casos.ts`** el del motor: los 12 comprobantes tienen que pasar después de
-   cualquier cambio en cómo se cargan los cuadros.
-4. **Los tres caminos, a mano**: con red y remoto más nuevo (actualiza), sin red y con cache
-   (usa cache), y sin red ni cache (usa el embebido). El tercero se prueba en una instalación
-   limpia con el avión activado.
-5. **JSON remoto corrupto**: servir a propósito algo inválido y confirmar que la app lo descarta
-   y sigue calculando, en vez de romperse o dar números raros.
+1. **El Action en seco, con `workflow_dispatch`**: que el TLS del ENRE funcione en Ubuntu y que
+   no genere diff cuando el período ya está.
+2. **Un caso real de actualización**: eliminar el último período del JSON, correr el Action y
+   ver que lo vuelve a agregar en un commit limpio.
+3. **`npx tsx domain/casos.ts`** es el test del motor y **`uv run scraper/main.py --check`** el
+   del scraper: los 12 comprobantes tienen que pasar después de cualquier cambio en cómo se
+   cargan los cuadros.
+4. **Con red**: baja el remoto, muestra la fecha del fetch y calcula. Contrastado con el
+   comprobante 58213 ($60.000 sobre 755,3 kWh acumulados → 201,7 kWh a $233,477/kWh).
+5. **Sin red y con cache**: apuntar `URL` a un host inalcanzable. Usa el cache y muestra la
+   fecha del fetch anterior.
+6. **Sin red ni cache**: "Tarifas de la versión instalada", y calcula igual.
+7. **Un remoto más viejo no pisa al que hay**: apuntar `URL` al JSON de un commit anterior.
+8. **JSON remoto corrupto**: apuntar `URL` al README, que responde 200 con algo que no es JSON.
+   Se descarta, se avisa por consola y el cache no se ensucia.
 
 ## Estado
 
-**El Action está hecho y verificado**: `.github/workflows/tarifas.yml`, cron diario a las 09:00
-UTC más `workflow_dispatch`.
+**Las dos mitades están hechas y verificadas.** Un cuadro nuevo del ENRE llega al celular sin
+pasar por Play Store.
+
+### El Action
+
+`.github/workflows/tarifas.yml`, cron diario a las 09:00 UTC más `workflow_dispatch`.
 
 - Corrida en seco: el TLS del ENRE **funciona en el runner de Ubuntu sin tocar nada** —era el
   riesgo principal y no se materializó. Resultado `(0 nuevos, 0 actualizados)` y ningún commit,
@@ -157,10 +188,23 @@ UTC más `workflow_dispatch`.
 - El bloque `permissions: contents: write` del workflow **sí eleva** por encima del default
   `read` del repo; no hace falta cambiar la configuración de Actions.
 
-Lo que falta es todo el lado de la app. Ahí el peor caso no es fallar sino calcular mal en
-silencio, que es por qué se hizo en un cambio aparte.
+### La app
 
-- `tsc` limpio, 7 casos de prueba pasando, 12 comprobantes reproducidos.
+`store/useCuadros.ts` baja el JSON al arrancar, lo valida, lo cachea y actualiza la pantalla.
+Se hizo en un cambio aparte del Action a propósito: los riesgos son distintos.
+
+- Los 5 caminos probados en el navegador: remoto, cache, embebido, remoto más viejo y JSON
+  corrupto. En los tres últimos la app sigue calculando y el cache no se ensucia.
+- **Los 12 comprobantes siguen cerrando** después de convertir las constantes en funciones,
+  que es lo que prueba que el refactor no movió ningún número.
+- `casos.ts` pasó de 7 a 10 casos: se agregaron el filtro sobre el camino remoto, el rechazo de
+  JSON inválido y las reglas de reemplazo.
+- El caso 10 deja instalado un cuadro de prueba y **no se puede deshacer** —volver al embebido
+  sería un retroceso y la regla lo prohíbe—, así que tiene que quedar último en el archivo.
+
+### Datos sueltos que conviene tener a mano
+
+- `tsc` limpio, 10 casos de prueba pasando, 12 comprobantes reproducidos.
 - El JSON tiene 78 cuadros: 28 períodos (04/2024 a 07/2026) × niveles. Ojo que **no todos los
   períodos traen los tres**: N3 está en 22 de 28 y los recientes, `2026-07` incluido, solo traen
   N1 y N2.

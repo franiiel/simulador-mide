@@ -194,9 +194,9 @@ uv run scraper/main.py --check    # valida los parsers contra valores verificado
 
 ## Roadmap
 
-- **Actualización remota**: el GitHub Action con cron que corre el scraper y commitea el JSON
-  ya está andando; falta que la app lea ese JSON por HTTP, con cache y fallback al embebido.
-  Es el requisito previo a Play Store. Detalle en
+- ~~**Actualización remota**~~ — **hecha**: un GitHub Action con cron corre el scraper y
+  commitea el JSON, y la app lo baja al arrancar, lo valida, lo cachea y cae al embebido si
+  falla. Las tarifas nuevas llegan sin publicar en Play Store. Detalle en
   [`docs/actualizacion-remota.md`](docs/actualizacion-remota.md).
 - **El tramo de arriba de 1400 kWh**, lo único que el motor no sabe calcular. Hace falta un
   comprobante de una recarga hecha con ese acumulado.

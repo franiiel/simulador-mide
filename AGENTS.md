@@ -21,7 +21,7 @@ mide-app/                 raíz del repo
 │   ├── App.tsx           navegación (stack) y providers
 │   ├── domain/           motor de cálculo — TypeScript puro, sin React
 │   ├── screens/          pantallas
-│   ├── store/            estado (zustand) y validación de formularios (zod)
+│   ├── store/            estado (zustand), validación (zod) y la bajada de cuadros
 │   ├── index.ts
 │   ├── app.json
 │   ├── package.json      (pnpm)
@@ -42,15 +42,22 @@ El flujo de datos importa para entender el diseño: los precios por tramo que co
 el set de validación. Ver el README para la fórmula.
 
 ```
-Scraper (Python) → app/domain/cuadrosEnre.json → motor → pantalla
-      ▲
-      └── .github/workflows/tarifas.yml lo corre por cron y commitea el JSON
+Action (cron) → commitea cuadrosEnre.json → raw.githubusercontent
+                                                    │
+                        JSON embebido en el bundle  │  (fallback)
+                                       └────────────┴──→ motor → pantalla
 ```
 
-La mitad de GitHub del pipeline de actualización remota ya está: el Action mantiene el JSON
-del repo al día solo. Falta la mitad de la app —leer el JSON por HTTP, validarlo y cachearlo—
-sin la cual el usuario sigue necesitando una versión nueva para ver tarifas nuevas. Ver
+**La actualización remota está completa.** El Action mantiene el JSON del repo al día y la app
+lo baja al arrancar, lo valida con zod, lo cachea en AsyncStorage y cae al embebido si algo
+falla. Un cuadro nuevo llega al celular sin publicar en Play Store. Ver
 `docs/actualizacion-remota.md`.
+
+Los cuadros activos se reemplazan en runtime, y por eso lo vigente son **funciones**
+(`periodoVigente()`, `tarifaVigente()`) y no constantes: una constante congela el valor en el
+import y la pantalla seguiría calculando con el cuadro viejo. `usarCuadros()` concentra la
+regla de qué origen gana; `normalizarCuadros()` es el único filtro a Edenor N2 y lo usan tanto
+el embebido como el remoto.
 
 ## Por qué no hay backend
 
@@ -61,9 +68,9 @@ AsyncStorage y los avisos de consumo se hacen con notificaciones locales de Expo
 cálculo es local.
 
 La actualización remota de tarifas —necesaria para no republicar en Play Store cada vez que
-cambia una tarifa— tampoco lo necesita: es un GitHub Action con cron que corre el scraper y
-commitea el JSON —ya funcionando—, más la app leyéndolo y cacheándolo con el embebido como
-fallback, que es lo que falta.
+cambia una tarifa— tampoco lo necesitó: es un GitHub Action con cron que corre el scraper y
+commitea el JSON, más la app leyéndolo de `raw.githubusercontent` y cacheándolo con el embebido
+como fallback. Está funcionando y no hay nada servido por nosotros.
 
 Un backend recién tendría sentido con features que necesiten estado compartido: cuentas,
 sincronización entre dispositivos o notificaciones push reales. Si aparece alguna, rehacer el
@@ -73,15 +80,19 @@ scaffold son minutos, y el que había está en la historia de git.
 
 - **Motor de cálculo** (`app/domain/`): TypeScript puro, sin dependencias de React
   Native, para poder testearlo aislado del renderizado. Las pantallas lo consumen;
-  nunca al revés.
+  nunca al revés. Esto es lo que permite correr `casos.ts` con `tsx` en Node, así que la red y
+  la persistencia van en `store/`: un import de AsyncStorage dentro de `domain/` rompe los
+  casos de prueba.
 - **UI**: navegación con `@react-navigation/native-stack`, estado con `zustand`,
   validación de formularios con `zod`. El store guarda la entrada cruda (texto) y la
   validación la convierte; el cálculo se deriva en la pantalla, no en el store.
 - **Scraper** (`scraper/`): Python con `uv`. Las dependencias van inline en `main.py`
   (PEP 723) para que corra con un comando y sin venv. Si el HTML del ENRE no tiene la forma
   esperada, falla en vez de adivinar.
-- **No agregar dependencias nuevas** (gráficos, testing, persistencia, etc.) hasta que
-  una feature concreta las necesite. Evitar abstracciones anticipadas.
+- **No agregar dependencias nuevas** (gráficos, testing, etc.) hasta que una feature concreta
+  las necesite. Evitar abstracciones anticipadas. `@react-native-async-storage/async-storage`
+  entró bajo esta regla, para el cache de cuadros; `axios` se sacó por no usarse en ningún
+  lado, y `date-fns` sigue instalado sin usarse.
 - **Formateo**: Prettier para TS/JSON/Markdown. Un hook `PostToolUse` formatea cada archivo
   al escribirlo; para una pasada completa está la skill `/formatear`.
 
@@ -146,8 +157,8 @@ del actual. La historia está en `docs/bitacora.md`.
 - Por qué el IVA de los comprobantes da 20,984 % y no 21 %.
 - Cómo se calcula el "Subsidio Estado Nacional" que imprime el ticket (no hace falta para
   el cálculo).
-- **El fetch con cache en la app**, que es lo que falta de la actualización remota: el Action
-  con cron ya mantiene el JSON del repo al día. Requisito previo a publicar en Play Store.
-  El obstáculo está identificado: `CUADROS_ENRE`, `PERIODO_VIGENTE` y `TARIFA_VIGENTE` son
-  constantes calculadas al importar, así que cargar cuadros en runtime obliga a convertirlas
-  en funciones sin romper el filtro a Edenor N2.
+- **Qué hacer si el ENRE cambia la escalera de bloques.** El esquema exige que los topes sean
+  exactamente `TOPES_KWH`, porque `TOPE_TASA_MUNICIPAL_KWH = 600` asume que 600 es un tope y de
+  ahí sale que la inversa monto → kWh sea exacta. Con otra escalera la app rechaza el cuadro
+  nuevo y se queda con el viejo. Es la dirección segura, pero deja de actualizarse en silencio:
+  si alguna vez pasa, hay que revisar el modelo y publicar una versión.
