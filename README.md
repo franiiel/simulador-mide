@@ -26,7 +26,7 @@ Prototipo funcional. Lo que hay hoy:
 - **Scraper** de los cuadros del ENRE (`scraper/`, Python con `uv`): baja los cuadros T1-R de
   Edenor y los emite como JSON, que es lo que el motor lee. Tiene cargados 28 períodos
   (abr/2024 a jul/2026) y ya no hace falta transcribir tarifas a mano.
-- **Backend** Go + Gin: solo `GET /health`, y por ahora no hace falta (ver más abajo).
+- **Sin backend**, y no hace falta: ver [más abajo](#por-qué-no-hay-backend).
 
 ## El problema
 
@@ -127,8 +127,7 @@ llegó al modelo vigente está en [`docs/bitacora.md`](docs/bitacora.md), y el p
 │   │   └── casos.ts         12 comprobantes reales + casos estructurales
 │   ├── screens/          pantallas (calculadora de carga)
 │   └── store/            estado (zustand) y validación (zod)
-├── scraper/              baja los cuadros del ENRE (Python + uv) → cuadros.json
-├── backend/              API Go + Gin — solo /health, hoy no hace falta
+├── scraper/              baja los cuadros del ENRE (Python + uv)
 └── docs/                 documentación de producto y del modelo de cálculo
 ```
 
@@ -144,20 +143,29 @@ Los cuadros salen del índice público del ENRE
 [`scraper/README.md`](scraper/README.md) — los cuadros cambiaron de formato en febrero 2026 y
 el scraper maneja los dos.
 
-### Por qué el backend no está en ese diagrama
+### Por qué no hay backend
 
-Tiene solo `/health`, y para lo que hace falta hoy alcanza con un archivo estático. La
-necesidad real aparece al publicar en Play Store: como las tarifas cambian todos los meses,
-un JSON embebido en el APK obligaría a un release mensual, y los usuarios que no actualizan
-calcularían con precios viejos (un mes de atraso en el tramo ≤1400 son 9,6 kWh de error en
-una recarga de $60.000).
+Hubo un scaffold de Go + Gin, eliminado porque nunca tuvo un propósito que sobreviviera al
+contacto con el resto. Servía `/health` y su razón declarada era ofrecer una API de tarifas,
+que es justo lo que resolvió el scraper emitiendo un JSON embebido.
 
-La solución prevista es un **GitHub Action con cron** que corra el scraper y commitee el
-JSON, con la app leyéndolo, cacheándolo y usando el embebido como fallback offline. Sin
-hosting. Además, si el ENRE cambia el HTML se arregla el scraper y todos los usuarios se
-benefician sin republicar — que es la razón por la que la app no scrapea el ENRE directo. El
-backend Go recién tendría sentido con features con estado (cuentas, histórico de consumo,
-notificaciones de "te quedan X kWh").
+Nada de lo planeado necesita servidor: el historial de cargas es almacenamiento local y los
+avisos de consumo se hacen con notificaciones locales, porque el cálculo corre en el
+dispositivo.
+
+Tampoco lo necesita la pieza que sí falta. Como las tarifas cambian todos los meses, un JSON
+embebido en el APK obligaría a un release mensual en Play Store, y los usuarios que no
+actualizan calcularían con precios viejos: un mes de atraso en el tramo ≤1400 son 9,6 kWh de
+error en una recarga de $60.000. La solución prevista es un **GitHub Action con cron** que
+corra el scraper y commitee el JSON, con la app leyéndolo, cacheándolo y usando el embebido
+como fallback offline. Sin hosting.
+
+Ese diseño tiene además una ventaja sobre scrapear el ENRE desde la app: si el ENRE cambia su
+HTML, se arregla el scraper y todos los usuarios se benefician **sin republicar**.
+
+Un backend recién tendría sentido con features que necesiten estado compartido — cuentas,
+sincronización entre dispositivos, notificaciones push reales. Si aparece alguna, el scaffold
+que había está en la historia de git.
 
 ## Correrlo
 
@@ -182,13 +190,6 @@ Scraper de los cuadros (no hace falta para usar la app):
 ```bash
 uv run scraper/main.py            # trae el último cuadro publicado
 uv run scraper/main.py --check    # valida los parsers contra valores verificados
-```
-
-Backend (opcional, hoy no hace falta):
-
-```bash
-cd backend
-go run ./cmd/api          # :8080, GET /health
 ```
 
 ## Roadmap

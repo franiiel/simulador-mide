@@ -112,6 +112,25 @@ Dos cosas que costaron y conviene no volver a descubrir:
   enero todavía traía tres niveles. Por eso el scraper elige el parser mirando los `<h4>`
   presentes y no la fecha. Desde feb/26 **N3 dejó de publicarse**.
 
+## El backend, eliminado
+
+Había un scaffold de Go + Gin (`backend/`, 47 líneas: `/health` y nada más). Se eliminó en la
+rama `feat/scraper-enre`.
+
+El razonamiento, por si alguna vez se plantea de nuevo: su propósito declarado en `idea.md`
+era servir una API de tarifas, y eso quedó cubierto por el scraper emitiendo un JSON que la
+app embebe. Nada de lo que está en "futuras mejoras" necesita servidor — el historial de
+cargas es AsyncStorage y los avisos de consumo se hacen con notificaciones locales, porque el
+cálculo corre en el dispositivo. Tampoco lo necesita la actualización remota de tarifas, que
+va a resolverse con un GitHub Action publicando el JSON.
+
+Dos señales de que era scaffolding sin dueño: el diagrama de flujo de datos de `idea.md` ya no
+lo incluía, y el scaffold era Go+Gin mientras `idea.md` decía Node.js + Express.
+
+**Volvería a tener sentido** con features que necesiten estado compartido: cuentas,
+sincronización entre dispositivos o notificaciones push reales. Si aparece alguna, recuperarlo
+es `git checkout f198660 -- backend/`, o rehacerlo desde cero en minutos.
+
 ## Próximo paso
 
 El motor está completo para el rango que importa. Lo que más valor agrega ahora:
@@ -119,8 +138,7 @@ El motor está completo para el rango que importa. Lo que más valor agrega ahor
 - **Actualización remota**, que es el requisito previo a Play Store. Como las tarifas cambian
   todos los meses, un JSON embebido obligaría a un release mensual y los usuarios que no
   actualizan calcularían mal. Plan: un GitHub Action con cron que corra el scraper y commitee
-  el JSON, y la app leyéndolo con cache y fallback al embebido. Sin hosting y sin backend —
-  ver el README para por qué el backend Go no está en ese camino.
+  el JSON, y la app leyéndolo con cache y fallback al embebido. Sin hosting.
 - **N1 y N3**: el scraper ya los baja y la derivación los cubre. Falta poder elegir el nivel
   en la pantalla; con eso la app sirve para cualquiera, no solo para este medidor.
 - **Simulación temporal**, que era la idea original del producto y hasta ahora estaba
@@ -148,8 +166,8 @@ cómo funciona MIDE.
   error y pasaba por casualidad, porque el acumulado correcto y el equivocado caían en el
   mismo tramo.
 - **Un hook `PostToolUse`** en `.claude/settings.json` corre Prettier sobre cada archivo que
-  se escribe o edita. Para una pasada completa está la skill `/formatear`, que además corre
-  `gofmt` sobre `backend/`.
+  se escribe o edita. Para una pasada completa está la skill `/formatear`. Python queda
+  afuera: no hay formateador configurado para el scraper.
 - **Los casos de prueba** (`app/domain/casos.ts`) no son un framework: es un script que se
   corre con `npx tsx domain/casos.ts`. Acumula fallos y sale con código 1, en vez de tirar en
   el primero.
