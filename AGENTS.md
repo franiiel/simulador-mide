@@ -15,6 +15,7 @@ No hay backend. Ver "Por qué no hay backend" más abajo.
 
 ```
 mide-app/                 raíz del repo
+├── .github/workflows/    tarifas.yml — cron diario que corre el scraper y commitea el JSON
 ├── docs/                 documentación de producto (idea.md, etc.)
 ├── app/                  frontend React Native + Expo
 │   ├── App.tsx           navegación (stack) y providers
@@ -42,7 +43,14 @@ el set de validación. Ver el README para la fórmula.
 
 ```
 Scraper (Python) → app/domain/cuadrosEnre.json → motor → pantalla
+      ▲
+      └── .github/workflows/tarifas.yml lo corre por cron y commitea el JSON
 ```
+
+La mitad de GitHub del pipeline de actualización remota ya está: el Action mantiene el JSON
+del repo al día solo. Falta la mitad de la app —leer el JSON por HTTP, validarlo y cachearlo—
+sin la cual el usuario sigue necesitando una versión nueva para ver tarifas nuevas. Ver
+`docs/actualizacion-remota.md`.
 
 ## Por qué no hay backend
 
@@ -53,8 +61,9 @@ AsyncStorage y los avisos de consumo se hacen con notificaciones locales de Expo
 cálculo es local.
 
 La actualización remota de tarifas —necesaria para no republicar en Play Store cada vez que
-cambia una tarifa— tampoco lo necesita: va a ser un GitHub Action con cron que corre el
-scraper y commitea el JSON, más la app leyéndolo y cacheándolo con el embebido como fallback.
+cambia una tarifa— tampoco lo necesita: es un GitHub Action con cron que corre el scraper y
+commitea el JSON —ya funcionando—, más la app leyéndolo y cacheándolo con el embebido como
+fallback, que es lo que falta.
 
 Un backend recién tendría sentido con features que necesiten estado compartido: cuentas,
 sincronización entre dispositivos o notificaciones push reales. Si aparece alguna, rehacer el
@@ -137,5 +146,8 @@ del actual. La historia está en `docs/bitacora.md`.
 - Por qué el IVA de los comprobantes da 20,984 % y no 21 %.
 - Cómo se calcula el "Subsidio Estado Nacional" que imprime el ticket (no hace falta para
   el cálculo).
-- **La actualización remota de los cuadros**: el GitHub Action con cron y el fetch con cache
-  en la app. Es el requisito previo a publicar en Play Store.
+- **El fetch con cache en la app**, que es lo que falta de la actualización remota: el Action
+  con cron ya mantiene el JSON del repo al día. Requisito previo a publicar en Play Store.
+  El obstáculo está identificado: `CUADROS_ENRE`, `PERIODO_VIGENTE` y `TARIFA_VIGENTE` son
+  constantes calculadas al importar, así que cargar cuadros en runtime obliga a convertirlas
+  en funciones sin romper el filtro a Edenor N2.

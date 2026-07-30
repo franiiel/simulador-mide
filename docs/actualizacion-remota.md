@@ -40,37 +40,33 @@ historia de git.
 El JSON embebido **no desaparece**: es el fallback offline y lo que usa una instalación nueva
 sin red. Se actualiza solo cuando se publica una versión de la app.
 
-## Lo que hay que decidir antes de escribir el workflow
+## Decisiones tomadas
 
-### 1. Sobre qué branch commitea el Action, y de dónde lee la app
+### 1. El Action commitea a `main`, y la app va a leer de ahí
 
-Es la decisión que bloquea todo lo demás. Estado actual:
+La app lee de una URL fija y el branch queda **cableado en el cliente**, así que cambiarlo
+después obliga a republicar. Por eso apunta a `main` y no a una rama de feature:
 
-| Branch              | Commit    | ¿Tiene el scraper y el JSON?   |
-| ------------------- | --------- | ------------------------------ |
-| `main` (default)    | `c5aee62` | **No** — está 14 commits atrás |
-| `feat/scraper-enre` | `e712959` | Sí, ya pusheada                |
+```
+https://raw.githubusercontent.com/franiiel/simulador-mide/main/app/domain/cuadrosEnre.json
+```
 
-La app leería de una URL fija tipo
-`https://raw.githubusercontent.com/franiiel/simulador-mide/<branch>/app/domain/cuadrosEnre.json`,
-así que el branch queda **cableado en el cliente** y cambiarlo después obliga a republicar.
-Conviene apuntar a `main` y mergear `feat/scraper-enre` antes de empezar, en vez de dejar la
-URL apuntando a una rama de feature.
+`main` quedó al día (venía 14 commits atrás) y se le sacó la protección, que exigía una
+aprobación de PR imposible de conseguir en un repo de una sola persona y además le habría
+rechazado el push al bot.
 
-### 2. `raw.githubusercontent` o GitHub Pages
+### 2. `raw.githubusercontent`, no GitHub Pages
 
-`raw` es el camino corto y alcanza para uso personal o familiar: el repo ya es público y no hay
-nada que configurar. No está pensado como CDN de producción y cachea unos minutos, lo cual para
-un archivo mensual es irrelevante. GitHub Pages es la opción más correcta si algún día la app se
-distribuye en serio, a costa de configurar el repo. Se puede empezar con `raw` y migrar, siempre
-que se acepte que migrar implica republicar.
+El repo es público y no hay nada que configurar. `raw` no está pensado como CDN de producción
+y cachea unos minutos, irrelevante para un archivo mensual. Pages es más correcto si la app
+alguna vez se distribuye en serio; migrar implica republicar, y se acepta ese costo.
 
-### 3. Cadencia del cron
+### 3. Cron diario
 
-Los cuadros aparecen a principio de mes, pero no en un día fijo. Un cron mensual el día 1 puede
-correr antes de que el ENRE publique. Lo razonable es **diario**, o diario solo durante los
-primeros días del mes: el scraper en modo default hace 2 requests (índice + último cuadro) y no
-escribe nada si el período ya está, así que correrlo seguido es barato y silencioso.
+Los cuadros aparecen a principio de mes, pero no en un día fijo, así que un cron mensual el
+día 1 puede correr antes de que el ENRE publique. El scraper en modo default hace 2 requests
+(índice + último cuadro) y no escribe nada si el período ya está: correrlo seguido es barato y
+silencioso.
 
 ## Trampas ya detectadas
 
@@ -128,26 +124,45 @@ No hay nada que arreglar, pero conviene saber que un cuadro nuevo activa ese avi
 
 ## Verificación
 
-1. **El Action, en seco**: correrlo con `workflow_dispatch` y confirmar que el TLS del ENRE
-   funciona en Ubuntu y que no genera diff cuando el período ya está.
+Del lado del Action, ya hecha (ver "Estado"):
+
+1. **En seco, con `workflow_dispatch`**: que el TLS del ENRE funcione en Ubuntu y que no genere
+   diff cuando el período ya está.
 2. **Un caso real de actualización**: forzar el estado eliminando el último período del JSON,
    correr el Action y ver que lo vuelve a agregar en un commit limpio.
+
+Del lado de la app, pendiente:
+
 3. **`uv run scraper/main.py --check`** sigue siendo el test del scraper, y
    **`npx tsx domain/casos.ts`** el del motor: los 12 comprobantes tienen que pasar después de
    cualquier cambio en cómo se cargan los cuadros.
-4. **Los tres caminos de la app, a mano**: con red y remoto más nuevo (actualiza), sin red y con
-   cache (usa cache), y sin red ni cache (usa el embebido). El tercero se prueba en una
-   instalación limpia con el avión activado.
+4. **Los tres caminos, a mano**: con red y remoto más nuevo (actualiza), sin red y con cache
+   (usa cache), y sin red ni cache (usa el embebido). El tercero se prueba en una instalación
+   limpia con el avión activado.
 5. **JSON remoto corrupto**: servir a propósito algo inválido y confirmar que la app lo descarta
    y sigue calculando, en vez de romperse o dar números raros.
 
-## Estado al cerrar la sesión anterior
+## Estado
 
-- Rama `feat/scraper-enre`, pusheada y al día con `origin` (4 commits: scraper, conexión al
-  JSON, docs, eliminación del backend). `main` está 14 commits atrás.
-- No existe `.github/`. No hay ningún workflow todavía.
+**El Action está hecho y verificado**: `.github/workflows/tarifas.yml`, cron diario a las 09:00
+UTC más `workflow_dispatch`.
+
+- Corrida en seco: el TLS del ENRE **funciona en el runner de Ubuntu sin tocar nada** —era el
+  riesgo principal y no se materializó. Resultado `(0 nuevos, 0 actualizados)` y ningún commit,
+  así que los line endings tampoco se rompen.
+- Corrida de escritura, en una rama descartable a la que se le borró `2026-07`: el bot lo volvió
+  a agregar en un commit de 90 inserciones, inverso exacto de los 90 borrados, y el archivo
+  resultante quedó **byte a byte idéntico** al de `main`.
+- `setup-uv` no publica tag flotante de major: `@v9` no resuelve, hay que pinnear `@v9.0.0`.
+- El bloque `permissions: contents: write` del workflow **sí eleva** por encima del default
+  `read` del repo; no hace falta cambiar la configuración de Actions.
+
+Lo que falta es todo el lado de la app. Ahí el peor caso no es fallar sino calcular mal en
+silencio, que es por qué se hizo en un cambio aparte.
+
 - `tsc` limpio, 7 casos de prueba pasando, 12 comprobantes reproducidos.
-- `uv run scraper/main.py --check` verde en los dos formatos de cuadro.
-- El JSON tiene 78 cuadros: 28 períodos (04/2024 a 07/2026) × niveles.
+- El JSON tiene 78 cuadros: 28 períodos (04/2024 a 07/2026) × niveles. Ojo que **no todos los
+  períodos traen los tres**: N3 está en 22 de 28 y los recientes, `2026-07` incluido, solo traen
+  N1 y N2.
 - `Bash(uv run *)` **no** está en los permisos de `.claude/settings.json`, así que correr el
   scraper pide confirmación cada vez.
