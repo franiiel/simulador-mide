@@ -10,7 +10,15 @@
 // y los importes se comparan con tolerancia porque el ticket redondea los kWh a 1 decimal.
 
 import { calcularRecarga, montoParaKwh, proximidadAlSalto } from './calculadora';
-import { CUADROS_EMBEBIDOS, cuadrosVigentes, periodoVigente } from './cuadrosEnre';
+import crudos from './cuadrosEnre.json';
+import {
+  CUADROS_EMBEBIDOS,
+  cuadrosVigentes,
+  normalizarCuadros,
+  periodoVigente,
+  usarCuadros,
+} from './cuadrosEnre';
+import { parsearCuadros } from './esquemaCuadros';
 import { multiplicadorImpuestos, tarifaDe, tarifaVigente, tramoPara } from './tarifas';
 import { RECARGA_MAXIMA, RECARGA_MINIMA, TOPES_KWH } from './types';
 
@@ -476,6 +484,114 @@ console.log(
   );
 
   console.log('✓ Caso 7: fuera de la escalera falla en vez de extrapolar');
+}
+
+// ---------------------------------------------------------------------------
+// El camino de los cuadros que llegan de afuera del bundle
+// ---------------------------------------------------------------------------
+//
+// Los casos 8 a 10 cubren la actualización remota, donde el modo de error no es que algo
+// falle sino que la app calcule bien con datos equivocados. Los tres tocan estado global del
+// módulo, así que van al final y restauran los cuadros embebidos al terminar.
+
+/** Un cuadro cualquiera, para armar payloads de prueba sin depender del JSON real. */
+function cuadroFalso(periodo: string, nivel: string, distribuidora = 'edenor') {
+  return {
+    periodo,
+    distribuidora,
+    nivel,
+    consumoBaseKwh: 300,
+    bloques: TOPES_KWH.map((hastaKwh) => ({
+      hastaKwh,
+      cargoFijo: 1000,
+      cargoVariableBase: 50,
+      cargoVariableExcedente: 100,
+    })),
+    fuente: 'caso de prueba',
+  };
+}
+
+{
+  // El filtro tiene que ser el mismo para el embebido y para el remoto. Si el camino remoto
+  // se saltea normalizarCuadros(), entra N1 —la tarifa sin subsidio— y el motor calcula de
+  // más sin que nada avise.
+  const mezcla = normalizarCuadros([
+    cuadroFalso('2026-08', 'N1'),
+    cuadroFalso('2026-08', 'N2'),
+    cuadroFalso('2026-08', 'N3'),
+    cuadroFalso('2026-08', 'N2', 'edesur'),
+  ]);
+
+  assertIgual('remoto', 'queda un solo cuadro', mezcla.length, 1);
+  assertIgual('remoto', 'y es el N2 de edenor', `${mezcla[0].distribuidora}/${mezcla[0].nivel}`, 'edenor/N2');
+
+  // Sin ningún Edenor N2 el filtro deja la lista vacía. Es el caso que usarCuadros() tiene
+  // que rechazar: si el ENRE renombrara la distribuidora, la app se quedaría sin cuadros.
+  assertIgual('remoto', 'sin edenor N2 no queda nada', normalizarCuadros([cuadroFalso('2026-08', 'N1')]).length, 0);
+
+  console.log('✓ Caso 8: el filtro a Edenor N2 vale también para el camino remoto');
+}
+
+{
+  // Lo que de verdad prueba el esquema es esto: que no sea MÁS ESTRICTO que los datos reales.
+  // Un esquema de más rechaza el archivo bueno y la app se queda sin actualizar para siempre,
+  // en silencio. Ya pasó una vez: pedir consumoBaseKwh > 0 tiraba los cuadros de 2024, que
+  // legítimamente lo traen en cero.
+  assertIgual('esquema', 'el JSON embebido valida', parsearCuadros(crudos)?.length, crudos.length);
+
+  assertIgual(
+    'esquema',
+    'un objeto suelto no es un array',
+    parsearCuadros(cuadroFalso('2026-08', 'N2')),
+    null,
+  );
+  assertIgual('esquema', 'un array vacío se rechaza', parsearCuadros([]), null);
+  assertIgual('esquema', 'no es JSON de cuadros', parsearCuadros('<!doctype html>'), null);
+
+  const sinConsumoBase: Record<string, unknown> = { ...cuadroFalso('2026-08', 'N2') };
+  delete sinConsumoBase.consumoBaseKwh;
+  assertIgual('esquema', 'falta un campo', parsearCuadros([sinConsumoBase]), null);
+
+  assertIgual(
+    'esquema',
+    'el período mal formado se rechaza',
+    parsearCuadros([cuadroFalso('agosto', 'N2')]),
+    null,
+  );
+
+  // Una escalera distinta rompe el supuesto de que 600 kWh es un tope, del que dependen la
+  // tasa municipal y la inversa exacta monto → kWh. Mejor quedarse con el cuadro viejo.
+  const otraEscalera = cuadroFalso('2026-08', 'N2');
+  otraEscalera.bloques = otraEscalera.bloques.slice(0, 5);
+  assertIgual('esquema', 'otra escalera se rechaza', parsearCuadros([otraEscalera]), null);
+
+  console.log('✓ Caso 9: un JSON inválido se descarta en vez de calcular con él');
+}
+
+// OJO: este caso deja instalado un cuadro de prueba y NO se puede deshacer —volver al
+// embebido sería un retroceso y la regla lo prohíbe, que es justo lo último que se afirma
+// acá. Tiene que quedar último en el archivo; cualquier caso nuevo va arriba.
+{
+  const original = periodoVigente();
+
+  assertIgual('reemplazo', 'el mismo período se acepta', usarCuadros(CUADROS_EMBEBIDOS), true);
+  assertIgual('reemplazo', 'una lista vacía se rechaza', usarCuadros([]), false);
+  assertIgual('reemplazo', 'y el vigente no se movió', periodoVigente(), original);
+
+  const viejo = normalizarCuadros([cuadroFalso('2024-01', 'N2')]);
+  assertIgual('reemplazo', 'un cuadro más viejo se rechaza', usarCuadros(viejo), false);
+  assertIgual('reemplazo', 'el vigente sigue sin moverse', periodoVigente(), original);
+
+  const nuevo = normalizarCuadros([...CUADROS_EMBEBIDOS, cuadroFalso('2099-12', 'N2')]);
+  assertIgual('reemplazo', 'uno más nuevo se toma', usarCuadros(nuevo), true);
+  assertIgual('reemplazo', 'y pasa a ser el vigente', periodoVigente(), '2099-12');
+
+  // Ni siquiera el embebido puede hacer retroceder el período una vez que entró uno nuevo.
+  // Es lo que impide que el cache viejo pise al remoto recién bajado.
+  assertIgual('reemplazo', 'el embebido ya no puede volver', usarCuadros(CUADROS_EMBEBIDOS), false);
+  assertIgual('reemplazo', 'sigue el más nuevo', periodoVigente(), '2099-12');
+
+  console.log('✓ Caso 10: un cuadro vacío o más viejo no pisa al que ya está');
 }
 
 if (fallos > 0) {
