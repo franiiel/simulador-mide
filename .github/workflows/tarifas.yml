@@ -1,0 +1,39 @@
+name: Cuadros tarifarios del ENRE
+
+on:
+  schedule:
+    # 09:00 UTC = 06:00 ART. Diario y no mensual: el ENRE no publica en un día fijo del mes.
+    # Correrlo seguido es barato — el scraper hace 2 requests y no escribe si el período ya está.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  # El default del repo es `read`, así que sin esto el push falla.
+  contents: write
+
+concurrency:
+  group: tarifas
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v9
+
+      # Modo default a propósito: trae solo el último cuadro y falla si no lo entiende.
+      # --todos saltearía con un aviso los períodos de formato desconocido, que es justo lo
+      # que no se quiere acá: es preferible no actualizar a publicar números mal parseados.
+      - run: uv run scraper/main.py
+
+      - name: Commitear si cambió
+        run: |
+          if git diff --quiet -- app/domain/cuadrosEnre.json; then
+            echo "El período ya estaba: sin cambios."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/domain/cuadrosEnre.json
+          git commit -m "chore(scraper): update the ENRE rate schedules"
+          git push
