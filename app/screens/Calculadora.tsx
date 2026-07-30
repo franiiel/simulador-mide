@@ -1,8 +1,10 @@
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { calcularRecarga, proximidadAlSalto } from '../domain/calculadora';
-import { tarifaVigente, topeEscalera } from '../domain/tarifas';
+import { topeEscalera } from '../domain/tarifas';
 import type { TarifaMide } from '../domain/types';
 import { RECARGA_MAXIMA, RECARGA_MINIMA, TOPE_TASA_MUNICIPAL_KWH } from '../domain/types';
+import type { Origen } from '../store/useCuadros';
+import { useCuadros } from '../store/useCuadros';
 import { useSimulacion, validarAcumulado, validarMonto } from '../store/useSimulacion';
 
 const pesos = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
@@ -24,6 +26,32 @@ const precioFmt = new Intl.NumberFormat('es-AR', {
   maximumFractionDigits: 3,
 });
 
+// Dos formatters en vez de uno: con ambos juntos, es-AR devuelve "30/7, 09:14 a. m." y habría
+// que partir esa cadena para armar el texto. hour12 explícito porque el default del locale es
+// de 12 horas.
+const fechaFmt = new Intl.DateTimeFormat('es-AR', { day: '2-digit', month: '2-digit' });
+const horaFmt = new Intl.DateTimeFormat('es-AR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
+
+/**
+ * De cuándo son las tarifas que se están usando.
+ *
+ * Importa decirlo: los cuadros se actualizan solos por red, así que sin esto no hay forma de
+ * distinguir una app al día de una que hace un mes que no se conecta y calcula con precios
+ * viejos. El período ya está arriba, pero solo dice qué mes es, no si es el último publicado.
+ */
+function textoActualizacion(origen: Origen, actualizadoEn: string | null): string {
+  if (origen === 'embebido' || !actualizadoEn) {
+    return 'Tarifas de la versión instalada';
+  }
+
+  const cuando = new Date(actualizadoEn);
+  return `Tarifas actualizadas el ${fechaFmt.format(cuando)} · ${horaFmt.format(cuando)}`;
+}
+
 /** Calcula la recarga y devuelve el error si el acumulado cae fuera de la escalera. */
 function simular(monto: number, acumulado: number, tarifa: TarifaMide) {
   try {
@@ -40,9 +68,10 @@ function simular(monto: number, acumulado: number, tarifa: TarifaMide) {
 export function Calculadora() {
   const { montoTexto, acumuladoTexto, setMontoTexto, setAcumuladoTexto } = useSimulacion();
 
-  // La tarifa se pasa explícita a todo el motor en vez de dejar que caiga en su default: los
-  // cuadros se reemplazan en runtime y así el render y el cálculo usan siempre el mismo.
-  const tarifa = tarifaVigente();
+  // La tarifa sale del store y se pasa explícita a todo el motor, en vez de dejar que caiga
+  // en su default: los cuadros se reemplazan en runtime cuando llegan los publicados, y así
+  // el render y el cálculo usan siempre el mismo.
+  const { tarifa, origen, actualizadoEn } = useCuadros();
 
   const vMonto = validarMonto(montoTexto);
   const vAcumulado = validarAcumulado(acumuladoTexto);
@@ -60,9 +89,8 @@ export function Calculadora() {
         <Text style={styles.fuenteTexto}>
           {tarifa.distribuidora} · nivel {tarifa.nivel} · período {tarifa.periodo}
         </Text>
-        <Text style={styles.fuenteTexto}>
-          Precios derivados del cuadro tarifario T1-R del ENRE
-        </Text>
+        <Text style={styles.fuenteTexto}>Precios derivados del cuadro tarifario T1-R del ENRE</Text>
+        <Text style={styles.fuenteTexto}>{textoActualizacion(origen, actualizadoEn)}</Text>
       </View>
 
       <Text style={styles.etiqueta}>Monto a cargar</Text>
@@ -163,8 +191,8 @@ export function Calculadora() {
               <Text style={styles.avisoTexto}>
                 La tasa municipal ({pesos.format(tarifa.tasaMunicipalPorKwh)}/kWh bajo los{' '}
                 {TOPE_TASA_MUNICIPAL_KWH} kWh) no la publica el ENRE y no hay comprobante de{' '}
-                {tarifa.periodo} que la confirme: se usa la del último período conocido.
-                Es el único número acá que no está verificado.
+                {tarifa.periodo} que la confirme: se usa la del último período conocido. Es el único
+                número acá que no está verificado.
               </Text>
             </View>
           ) : null}
@@ -206,8 +234,8 @@ function Salto({
           Estás a {kwhFmt.format(kwhHastaElSalto)} kWh del tope de {tope} kWh
         </Text>
         <Text style={styles.saltoTextoNeutro}>
-          Pasando ese acumulado no se sabe qué precio aplica: el cuadro del ENRE publica el
-          último bloque sin techo y ningún comprobante llegó tan alto.
+          Pasando ese acumulado no se sabe qué precio aplica: el cuadro del ENRE publica el último
+          bloque sin techo y ningún comprobante llegó tan alto.
         </Text>
       </View>
     );
