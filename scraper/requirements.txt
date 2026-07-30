@@ -1,3 +1,4 @@
-# Sin dependencias todavía. Candidatas cuando se implemente el scraping:
-# requests
-# beautifulsoup4
+# Para pip. Con uv no hace falta: main.py declara sus dependencias inline (PEP 723), así que
+# `uv run scraper/main.py` las resuelve solo.
+requests
+beautifulsoup4
