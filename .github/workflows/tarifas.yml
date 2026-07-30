@@ -19,7 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v9
+      # Versión exacta: setup-uv no publica tag flotante de major (no existe `v9`).
+      - uses: astral-sh/setup-uv@v9.0.0
 
       # Modo default a propósito: trae solo el último cuadro y falla si no lo entiende.
       # --todos saltearía con un aviso los períodos de formato desconocido, que es justo lo
