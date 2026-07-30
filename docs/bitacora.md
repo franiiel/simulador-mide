@@ -139,6 +139,9 @@ El motor está completo para el rango que importa. Lo que más valor agrega ahor
   todos los meses, un JSON embebido obligaría a un release mensual y los usuarios que no
   actualizan calcularían mal. Plan: un GitHub Action con cron que corra el scraper y commitee
   el JSON, y la app leyéndolo con cache y fallback al embebido. Sin hosting.
+  **Está preparado en [`actualizacion-remota.md`](actualizacion-remota.md)**: decisiones
+  tomadas, las que faltan, y las trampas ya detectadas (el TLS en el runner, los line endings,
+  el filtro de nivel). Empezar por ahí.
 - **N1 y N3**: el scraper ya los baja y la derivación los cubre. Falta poder elegir el nivel
   en la pantalla; con eso la app sirve para cualquiera, no solo para este medidor.
 - **Simulación temporal**, que era la idea original del producto y hasta ahora estaba

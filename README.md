@@ -195,7 +195,8 @@ uv run scraper/main.py --check    # valida los parsers contra valores verificado
 ## Roadmap
 
 - **Actualización remota**: GitHub Action con cron que corra el scraper, y la app leyendo el
-  JSON publicado con cache y fallback. Es el requisito previo a Play Store.
+  JSON publicado con cache y fallback. Es el requisito previo a Play Store, y está preparado
+  en [`docs/actualizacion-remota.md`](docs/actualizacion-remota.md).
 - **El tramo de arriba de 1400 kWh**, lo único que el motor no sabe calcular. Hace falta un
   comprobante de una recarga hecha con ese acumulado.
 - **Confirmar la tasa municipal del período vigente** con un comprobante que compre por
