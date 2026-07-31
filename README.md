@@ -8,6 +8,22 @@ La pregunta que busca responder no es "cuánto sale el kWh", sino:
 
 > ¿Cuántos kWh me da $50.000 **hoy**?
 
+<p align="center">
+  <img
+    src="docs/img/pantalla-principal.jpg"
+    alt="Pantalla de la app: una recarga de $60.000 con 612 kWh acumulados acredita 144,6 kWh a $414,96 por kWh. Debajo, la escalera de precios con los seis tramos y un aviso de que al llegar a 700 kWh acumulados el kWh se abarata."
+    width="340"
+  >
+</p>
+
+<p align="center">
+  <em>
+    Una recarga de $60.000 con 612 kWh acumulados. La barra es la escalera de precios: los
+    segmentos van a escala de los kWh que abarca cada tramo y el color sale del precio, no
+    del orden.
+  </em>
+</p>
+
 > [!IMPORTANT]
 > Proyecto personal, **sin relación ni afiliación con Edenor ni con el ENRE**. No es
 > la aplicación oficial de MIDE.
@@ -23,6 +39,9 @@ Prototipo funcional. Lo que hay hoy:
 - **Calculadora de recarga**: se ingresa el monto y el consumo acumulado del mes, y se
   ven los kWh que se acreditan con el mismo desglose que imprime el ticket, renglón por
   renglón. La recarga está acotada a los límites de MIDE, entre $1.500 y $60.000.
+- **La escalera, dibujada**: dónde cae el acumulado del mes, hasta dónde lo lleva la recarga
+  y qué precio tiene cada tramo, más un aviso de cuánto falta para el próximo cambio de
+  precio y si ese cambio abarata o encarece el kWh. Tema claro y oscuro.
 - **Scraper** de los cuadros del ENRE (`scraper/`, Python con `uv`): baja los cuadros T1-R de
   Edenor y los emite como JSON, que es lo que el motor lee. Tiene cargados 28 períodos
   (abr/2024 a jul/2026) y ya no hace falta transcribir tarifas a mano.
@@ -59,6 +78,10 @@ por tramo. Los topes son **150 / 400 / 500 / 600 / 700 / 1400 kWh**.
 
 O sea que **cruzar los 700 kWh acumulados abarata el kWh**, no lo encarece. La causa está
 en el punto siguiente.
+
+Es lo que se ve en la captura de arriba: el tramo ≤700 es el más cálido de la barra por ser
+el más caro, y el ≤1400 vuelve a un tono frío. Por eso el color de cada tramo se interpola
+del precio y no del índice — pintar por orden mostraría el tramo más barato como el más caro.
 
 ## Cómo funciona el cálculo
 
@@ -126,6 +149,7 @@ llegó al modelo vigente está en [`docs/bitacora.md`](docs/bitacora.md), y el p
 │   │   ├── calculadora.ts   calcularRecarga(), proximidadAlSalto(), montoParaKwh()
 │   │   └── casos.ts         12 comprobantes reales + casos estructurales
 │   ├── screens/          pantallas (calculadora de carga)
+│   ├── ui/               tokens visuales y componentes (tema, escalera, plegables)
 │   └── store/            estado (zustand) y validación (zod)
 ├── scraper/              baja los cuadros del ENRE (Python + uv)
 └── docs/                 documentación de producto y del modelo de cálculo
