@@ -21,6 +21,7 @@ mide-app/                 raíz del repo
 │   ├── App.tsx           navegación (stack) y providers
 │   ├── domain/           motor de cálculo — TypeScript puro, sin React
 │   ├── screens/          pantallas
+│   ├── ui/               tokens visuales y componentes de presentación
 │   ├── store/            estado (zustand), validación (zod) y la bajada de cuadros
 │   ├── index.ts
 │   ├── app.json
@@ -86,13 +87,22 @@ scaffold son minutos, y el que había está en la historia de git.
 - **UI**: navegación con `@react-navigation/native-stack`, estado con `zustand`,
   validación de formularios con `zod`. El store guarda la entrada cruda (texto) y la
   validación la convierte; el cálculo se deriva en la pantalla, no en el store.
+- **Presentación** (`app/ui/`): `theme.ts` es la única fuente de colores y tipografías —las
+  pantallas no declaran hex propios— y expone las dos variantes de tema. Los colores de los
+  tramos se interpolan a partir del **precio real** de cada uno (`coloresDeTramos()`) y no del
+  orden: la escalera no es monótona, así que un color por índice pintaría el tramo más barato
+  como el más caro.
 - **Scraper** (`scraper/`): Python con `uv`. Las dependencias van inline en `main.py`
   (PEP 723) para que corra con un comando y sin venv. Si el HTML del ENRE no tiene la forma
   esperada, falla en vez de adivinar.
 - **No agregar dependencias nuevas** (gráficos, testing, etc.) hasta que una feature concreta
   las necesite. Evitar abstracciones anticipadas. `@react-native-async-storage/async-storage`
   entró bajo esta regla, para el cache de cuadros; `axios` se sacó por no usarse en ningún
-  lado, y `date-fns` sigue instalado sin usarse.
+  lado, y `date-fns` sigue instalado sin usarse. `expo-font`, `@expo-google-fonts/archivo` y
+  `@expo/vector-icons` entraron con el rediseño de la pantalla: la identidad tipográfica no se
+  puede resolver con la fuente del sistema, y los tres íconos del salto y de los plegables
+  serían glifos de texto que no escalan igual entre plataformas. La escalera, en cambio, se
+  dibuja con `View`: no hace falta una librería de gráficos.
 - **Formateo**: Prettier para TS/JSON/Markdown. Un hook `PostToolUse` formatea cada archivo
   al escribirlo; para una pasada completa está la skill `/formatear`.
 
