@@ -19,6 +19,11 @@
 // que explica que el tramo ≤400 casi se duplicara entre dic/25 y mar/26: no fue solo la quita
 // de subsidio, fue que el consumo base bajó de 350 a 150 y el bloque pasó a ser todo
 // excedente.
+//
+// Los cuadros activos se pueden REEMPLAZAR en runtime (ver usarCuadros): el JSON embebido es
+// el piso y la app le encima el que baja del repo. Por eso lo vigente son funciones y no
+// constantes — una constante congelaría el valor en el momento del import y la pantalla
+// seguiría calculando con el cuadro viejo después de actualizar.
 
 import crudos from './cuadrosEnre.json';
 import type { CuadroEnre, Nivel } from './types';
@@ -40,14 +45,55 @@ const NIVEL: Nivel = 'N2';
 // estrecha, en vez de forzar el tipo con un cast que podría tapar un cambio de shape.
 type CuadroCrudo = Omit<CuadroEnre, 'nivel'> & { nivel: string };
 
-export const CUADROS_ENRE: CuadroEnre[] = (crudos as CuadroCrudo[])
-  .filter((cuadro) => cuadro.distribuidora === DISTRIBUIDORA && cuadro.nivel === NIVEL)
-  .map((cuadro) => ({ ...cuadro, nivel: NIVEL }))
-  .sort((a, b) => a.periodo.localeCompare(b.periodo));
+/**
+ * Deja solo los cuadros que el motor sabe usar, ordenados por período.
+ *
+ * Se exporta porque el cuadro que baja de la red tiene que pasar por ACÁ y no por otro filtro
+ * parecido: dos caminos distintos hacia los mismos datos es exactamente cómo se cuela un
+ * cuadro sin subsidio sin que nada falle.
+ */
+export function normalizarCuadros(cuadros: CuadroCrudo[]): CuadroEnre[] {
+  return cuadros
+    .filter((cuadro) => cuadro.distribuidora === DISTRIBUIDORA && cuadro.nivel === NIVEL)
+    .map((cuadro) => ({ ...cuadro, nivel: NIVEL }))
+    .sort((a, b) => a.periodo.localeCompare(b.periodo));
+}
+
+/** Los que viajan en el bundle. Es el piso: siempre hay con qué calcular. */
+export const CUADROS_EMBEBIDOS: CuadroEnre[] = normalizarCuadros(crudos as CuadroCrudo[]);
+
+let activos: CuadroEnre[] = CUADROS_EMBEBIDOS;
+
+export function cuadrosVigentes(): CuadroEnre[] {
+  return activos;
+}
 
 /** El período más reciente que se conoce. Es el que usa la app por defecto. */
-export const PERIODO_VIGENTE = CUADROS_ENRE[CUADROS_ENRE.length - 1].periodo;
+export function periodoVigente(): string {
+  return activos[activos.length - 1].periodo;
+}
 
 export function cuadroDe(periodo: string): CuadroEnre | null {
-  return CUADROS_ENRE.find((cuadro) => cuadro.periodo === periodo) ?? null;
+  return activos.find((cuadro) => cuadro.periodo === periodo) ?? null;
+}
+
+/**
+ * Reemplaza los cuadros activos. Devuelve si los tomó.
+ *
+ * Concentra la regla de cuándo un origen le gana a otro, que es lo único que impide que un
+ * cuadro viejo —o vacío— pise a uno bueno:
+ *
+ * - Vacío se rechaza. Un JSON válido puede quedar en nada después de normalizarCuadros (si el
+ *   ENRE renombrara la distribuidora, por ejemplo), y sin este corte la app se quedaría sin
+ *   ningún cuadro y `periodoVigente()` reventaría al leer el último de una lista vacía.
+ * - Más viejo se rechaza: ni el cache ni un remoto desactualizado deben hacer retroceder el
+ *   período vigente.
+ * - Igual se acepta, porque es el caso normal: el remoto casi siempre trae lo mismo que ya hay.
+ */
+export function usarCuadros(nuevos: CuadroEnre[]): boolean {
+  if (nuevos.length === 0) return false;
+  if (nuevos[nuevos.length - 1].periodo < periodoVigente()) return false;
+
+  activos = nuevos;
+  return true;
 }

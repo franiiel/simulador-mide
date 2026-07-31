@@ -1,4 +1,4 @@
-import { cuadroDe, PERIODO_VIGENTE } from './cuadrosEnre';
+import { cuadroDe, periodoVigente } from './cuadrosEnre';
 import type { CuadroEnre, Impuestos, TarifaMide, TramoPrecio } from './types';
 
 // Impuestos, como fracción del subtotal de energía.
@@ -127,7 +127,7 @@ function tasaMunicipalDe(periodo: string): { valor: number; heredada: boolean } 
 }
 
 /** Todo lo necesario para liquidar una recarga en un período. */
-export function tarifaDe(periodo: string = PERIODO_VIGENTE): TarifaMide {
+export function tarifaDe(periodo: string = periodoVigente()): TarifaMide {
   const cuadro = cuadroDe(periodo);
   if (!cuadro) {
     throw new Error(`No se conoce el cuadro tarifario del período ${periodo}.`);
@@ -146,15 +146,23 @@ export function tarifaDe(periodo: string = PERIODO_VIGENTE): TarifaMide {
   };
 }
 
-/** La tarifa vigente, que es la que usa la app. */
-export const TARIFA_VIGENTE = tarifaDe();
+/**
+ * La tarifa vigente, que es la que usa la app.
+ *
+ * Es una función y no una constante porque los cuadros se reemplazan en runtime cuando la app
+ * baja los publicados (ver usarCuadros en cuadrosEnre.ts). Como default de parámetro se
+ * evalúa en cada llamada, así que los call sites no se enteran.
+ */
+export function tarifaVigente(): TarifaMide {
+  return tarifaDe();
+}
 
 /** Tramo que corresponde a un consumo acumulado del mes. null si está fuera de la escalera. */
-export function tramoPara(acumuladoKwh: number, tarifa: TarifaMide = TARIFA_VIGENTE) {
+export function tramoPara(acumuladoKwh: number, tarifa: TarifaMide = tarifaVigente()) {
   return tarifa.tramos.find((t) => acumuladoKwh <= t.hastaKwhAcumulados) ?? null;
 }
 
 /** Tope de la escalera; a partir de acá no se sabe qué precio se aplica. */
-export function topeEscalera(tarifa: TarifaMide = TARIFA_VIGENTE): number {
+export function topeEscalera(tarifa: TarifaMide = tarifaVigente()): number {
   return tarifa.tramos[tarifa.tramos.length - 1].hastaKwhAcumulados;
 }

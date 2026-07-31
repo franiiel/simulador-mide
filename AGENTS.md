@@ -15,12 +15,14 @@ No hay backend. Ver "Por qué no hay backend" más abajo.
 
 ```
 mide-app/                 raíz del repo
+├── .github/workflows/    tarifas.yml — cron diario que corre el scraper y commitea el JSON
 ├── docs/                 documentación de producto (idea.md, etc.)
 ├── app/                  frontend React Native + Expo
 │   ├── App.tsx           navegación (stack) y providers
 │   ├── domain/           motor de cálculo — TypeScript puro, sin React
 │   ├── screens/          pantallas
-│   ├── store/            estado (zustand) y validación de formularios (zod)
+│   ├── ui/               tokens visuales y componentes de presentación
+│   ├── store/            estado (zustand), validación (zod) y la bajada de cuadros
 │   ├── index.ts
 │   ├── app.json
 │   ├── package.json      (pnpm)
@@ -41,8 +43,22 @@ El flujo de datos importa para entender el diseño: los precios por tramo que co
 el set de validación. Ver el README para la fórmula.
 
 ```
-Scraper (Python) → app/domain/cuadrosEnre.json → motor → pantalla
+Action (cron) → commitea cuadrosEnre.json → raw.githubusercontent
+                                                    │
+                        JSON embebido en el bundle  │  (fallback)
+                                       └────────────┴──→ motor → pantalla
 ```
+
+**La actualización remota está completa.** El Action mantiene el JSON del repo al día y la app
+lo baja al arrancar, lo valida con zod, lo cachea en AsyncStorage y cae al embebido si algo
+falla. Un cuadro nuevo llega al celular sin publicar en Play Store. Ver
+`docs/actualizacion-remota.md`.
+
+Los cuadros activos se reemplazan en runtime, y por eso lo vigente son **funciones**
+(`periodoVigente()`, `tarifaVigente()`) y no constantes: una constante congela el valor en el
+import y la pantalla seguiría calculando con el cuadro viejo. `usarCuadros()` concentra la
+regla de qué origen gana; `normalizarCuadros()` es el único filtro a Edenor N2 y lo usan tanto
+el embebido como el remoto.
 
 ## Por qué no hay backend
 
@@ -53,8 +69,9 @@ AsyncStorage y los avisos de consumo se hacen con notificaciones locales de Expo
 cálculo es local.
 
 La actualización remota de tarifas —necesaria para no republicar en Play Store cada vez que
-cambia una tarifa— tampoco lo necesita: va a ser un GitHub Action con cron que corre el
-scraper y commitea el JSON, más la app leyéndolo y cacheándolo con el embebido como fallback.
+cambia una tarifa— tampoco lo necesitó: es un GitHub Action con cron que corre el scraper y
+commitea el JSON, más la app leyéndolo de `raw.githubusercontent` y cacheándolo con el embebido
+como fallback. Está funcionando y no hay nada servido por nosotros.
 
 Un backend recién tendría sentido con features que necesiten estado compartido: cuentas,
 sincronización entre dispositivos o notificaciones push reales. Si aparece alguna, rehacer el
@@ -64,15 +81,28 @@ scaffold son minutos, y el que había está en la historia de git.
 
 - **Motor de cálculo** (`app/domain/`): TypeScript puro, sin dependencias de React
   Native, para poder testearlo aislado del renderizado. Las pantallas lo consumen;
-  nunca al revés.
+  nunca al revés. Esto es lo que permite correr `casos.ts` con `tsx` en Node, así que la red y
+  la persistencia van en `store/`: un import de AsyncStorage dentro de `domain/` rompe los
+  casos de prueba.
 - **UI**: navegación con `@react-navigation/native-stack`, estado con `zustand`,
   validación de formularios con `zod`. El store guarda la entrada cruda (texto) y la
   validación la convierte; el cálculo se deriva en la pantalla, no en el store.
+- **Presentación** (`app/ui/`): `theme.ts` es la única fuente de colores y tipografías —las
+  pantallas no declaran hex propios— y expone las dos variantes de tema. Los colores de los
+  tramos se interpolan a partir del **precio real** de cada uno (`coloresDeTramos()`) y no del
+  orden: la escalera no es monótona, así que un color por índice pintaría el tramo más barato
+  como el más caro.
 - **Scraper** (`scraper/`): Python con `uv`. Las dependencias van inline en `main.py`
   (PEP 723) para que corra con un comando y sin venv. Si el HTML del ENRE no tiene la forma
   esperada, falla en vez de adivinar.
-- **No agregar dependencias nuevas** (gráficos, testing, persistencia, etc.) hasta que
-  una feature concreta las necesite. Evitar abstracciones anticipadas.
+- **No agregar dependencias nuevas** (gráficos, testing, etc.) hasta que una feature concreta
+  las necesite. Evitar abstracciones anticipadas. `@react-native-async-storage/async-storage`
+  entró bajo esta regla, para el cache de cuadros; `axios` se sacó por no usarse en ningún
+  lado, y `date-fns` sigue instalado sin usarse. `expo-font`, `@expo-google-fonts/archivo` y
+  `@expo/vector-icons` entraron con el rediseño de la pantalla: la identidad tipográfica no se
+  puede resolver con la fuente del sistema, y los tres íconos del salto y de los plegables
+  serían glifos de texto que no escalan igual entre plataformas. La escalera, en cambio, se
+  dibuja con `View`: no hace falta una librería de gráficos.
 - **Formateo**: Prettier para TS/JSON/Markdown. Un hook `PostToolUse` formatea cada archivo
   al escribirlo; para una pasada completa está la skill `/formatear`.
 
@@ -137,5 +167,8 @@ del actual. La historia está en `docs/bitacora.md`.
 - Por qué el IVA de los comprobantes da 20,984 % y no 21 %.
 - Cómo se calcula el "Subsidio Estado Nacional" que imprime el ticket (no hace falta para
   el cálculo).
-- **La actualización remota de los cuadros**: el GitHub Action con cron y el fetch con cache
-  en la app. Es el requisito previo a publicar en Play Store.
+- **Qué hacer si el ENRE cambia la escalera de bloques.** El esquema exige que los topes sean
+  exactamente `TOPES_KWH`, porque `TOPE_TASA_MUNICIPAL_KWH = 600` asume que 600 es un tope y de
+  ahí sale que la inversa monto → kWh sea exacta. Con otra escalera la app rechaza el cuadro
+  nuevo y se queda con el viejo. Es la dirección segura, pero deja de actualizarse en silencio:
+  si alguna vez pasa, hay que revisar el modelo y publicar una versión.
