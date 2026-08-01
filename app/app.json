@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "simulador-mide",
+    "name": "Consumo MIDE",
     "slug": "simulador-mide",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,8 +10,9 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.franiiel.simuladormide",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0E1013",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -21,6 +22,12 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-font"]
+    "plugins": ["expo-font"],
+    "extra": {
+      "eas": {
+        "projectId": "eaf6553e-a91d-47d9-aaac-ae47430634e0"
+      }
+    },
+    "owner": "franiel"
   }
 }

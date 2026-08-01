@@ -26,7 +26,8 @@ mide-app/                 raíz del repo
 │   ├── index.ts
 │   ├── app.json
 │   ├── package.json      (pnpm)
-│   └── assets/
+│   └── assets/           iconos — generados, no editados a mano
+├── scripts/              iconos.py — regenera los iconos de app/assets/
 └── scraper/              baja los cuadros del ENRE (Python)
     ├── main.py
     └── requirements.txt
@@ -92,6 +93,10 @@ scaffold son minutos, y el que había está en la historia de git.
   tramos se interpolan a partir del **precio real** de cada uno (`coloresDeTramos()`) y no del
   orden: la escalera no es monótona, así que un color por índice pintaría el tramo más barato
   como el más caro.
+- **Iconos** (`app/assets/`): son **generados**, no se editan a mano. La marca es el monograma
+  M en Archivo Black —la misma tipografía de la app— sobre el fondo oscuro del tema, con la
+  rampa de precios como base. `scripts/iconos.py` los rehace a partir de los tokens de
+  `theme.ts` y de la TTF que ya está en `node_modules`; retocar un PNG suelto los desincroniza.
 - **Scraper** (`scraper/`): Python con `uv`. Las dependencias van inline en `main.py`
   (PEP 723) para que corra con un comando y sin venv. Si el HTML del ENRE no tiene la forma
   esperada, falla en vez de adivinar.
@@ -138,6 +143,9 @@ npx tsx domain/casos.ts   # casos de prueba del motor
 # Scraper (desde la raíz)
 uv run scraper/main.py            # trae el último cuadro publicado
 uv run scraper/main.py --check    # valida los parsers
+
+# Iconos (desde la raíz, después de `pnpm install`)
+uv run scripts/iconos.py          # regenera app/assets/
 ```
 
 ## Reglas del motor de cálculo

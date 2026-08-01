@@ -3508,5 +3508,95 @@
     "fuente": "ENRE 3FF0093CEC594ECF03258E2800502AFD",
     "nivel": "N2",
     "periodo": "2026-07"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1741.12,
+        "cargoVariableBase": 158.001,
+        "cargoVariableExcedente": 158.001,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3713.54,
+        "cargoVariableBase": 158.636,
+        "cargoVariableExcedente": 158.636,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 12194.46,
+        "cargoVariableBase": 170.373,
+        "cargoVariableExcedente": 170.373,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 19508.39,
+        "cargoVariableBase": 174.193,
+        "cargoVariableExcedente": 174.193,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 41118.15,
+        "cargoVariableBase": 174.479,
+        "cargoVariableExcedente": 174.479,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 64134.51,
+        "cargoVariableBase": 189.796,
+        "cargoVariableExcedente": 189.796,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 0,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 8E99EA5BDAF08AA603258E45004194B2",
+    "nivel": "N1",
+    "periodo": "2026-08"
+  },
+  {
+    "bloques": [
+      {
+        "cargoFijo": 1741.12,
+        "cargoVariableBase": 70.217,
+        "cargoVariableExcedente": 70.217,
+        "hastaKwh": 150
+      },
+      {
+        "cargoFijo": 3713.54,
+        "cargoVariableBase": 70.851,
+        "cargoVariableExcedente": 158.636,
+        "hastaKwh": 400
+      },
+      {
+        "cargoFijo": 12194.46,
+        "cargoVariableBase": 82.589,
+        "cargoVariableExcedente": 170.373,
+        "hastaKwh": 500
+      },
+      {
+        "cargoFijo": 19508.39,
+        "cargoVariableBase": 86.409,
+        "cargoVariableExcedente": 174.193,
+        "hastaKwh": 600
+      },
+      {
+        "cargoFijo": 41118.15,
+        "cargoVariableBase": 86.695,
+        "cargoVariableExcedente": 174.479,
+        "hastaKwh": 700
+      },
+      {
+        "cargoFijo": 64134.51,
+        "cargoVariableBase": 102.012,
+        "cargoVariableExcedente": 189.796,
+        "hastaKwh": 1400
+      }
+    ],
+    "consumoBaseKwh": 300,
+    "distribuidora": "edenor",
+    "fuente": "ENRE 8E99EA5BDAF08AA603258E45004194B2",
+    "nivel": "N2",
+    "periodo": "2026-08"
   }
 ]
