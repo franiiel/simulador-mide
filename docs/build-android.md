@@ -109,6 +109,37 @@ Ya está resuelto con `autoIncrement: true` en el perfil, más `appVersionSource
 `preview` genera un build de release (optimizado, sin el menú de desarrollo). No confundir con
 el _development build_, que necesita Metro corriendo para funcionar.
 
+### Por qué se compila solo para arm64
+
+El primer APK pesó **74 MB**, y desarmarlo explicó por qué:
+
+| Parte                     | Peso    |
+| ------------------------- | ------- |
+| `lib/x86` + `lib/x86_64`  | 34,5 MB |
+| `classes*.dex`            | 20 MB   |
+| `lib/arm64-v8a`           | 16,5 MB |
+| `lib/armeabi-v7a`         | 11,4 MB |
+| `index.android.bundle`    | 1,9 MB  |
+| `res/` (fuentes e iconos) | 1,5 MB  |
+
+El código propio son ~3,5 MB; el resto es el runtime de React Native. Sin decirle nada, EAS arma
+un **APK universal** con las cuatro arquitecturas adentro, porque no sabe a qué dispositivo va.
+La mitad de eso —x86 y x86_64— son arquitecturas de emulador que un celular no ejecuta nunca.
+
+Play Store resuelve esto con el AAB, que le manda a cada teléfono solo su arquitectura. Para
+sideload no existe ese mecanismo, así que se hace a mano desde el perfil:
+
+```json
+"gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a"
+```
+
+Se eligió `gradleCommand` y no el plugin `expo-build-properties` justamente para no sumar una
+dependencia por esto. El costo: el APK deja de instalarse en emuladores x86 y en celulares de
+32 bits anteriores a ~2016. Si alguna vez hace falta uno de esos, se agrega `armeabi-v7a`
+separado por comas.
+
+Debajo de esto no se baja sin salir de Expo: los `dex` y el `lib/arm64` son el piso del stack.
+
 ## Actualizaciones: qué se actualiza solo y qué no
 
 Esta es la parte que importa entender para este proyecto en particular.
