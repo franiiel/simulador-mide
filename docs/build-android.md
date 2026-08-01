@@ -74,6 +74,10 @@ Si el archivo que baja termina en `.aab`, el perfil está mal.
 > [!WARNING]
 > **WhatsApp bloquea el envío de archivos `.apk`.** No es un problema del build.
 
+El link de descarga que hostea EAS **caduca a las dos semanas** (el build trae su
+`expirationDate`). El APK ya bajado sigue funcionando para siempre; lo que se pierde es la URL.
+Si hace falta más adelante, se compila de nuevo.
+
 ## Cuidados
 
 ### El keystore es irrecuperable
