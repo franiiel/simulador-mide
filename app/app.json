@@ -20,7 +20,10 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "lang": "es",
+      "description": "Simulá tu consumo eléctrico y estimá la próxima boleta de Edenor a partir de los cuadros tarifarios del ENRE.",
+      "themeColor": "#0E1013"
     },
     "plugins": ["expo-font"],
     "extra": {

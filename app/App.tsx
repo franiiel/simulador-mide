@@ -55,7 +55,12 @@ export default function App() {
         }}
       >
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Calculadora" component={Calculadora} />
+          {/* En web React Navigation pisa el <title> del HTML con el nombre de la ruta. */}
+          <Stack.Screen
+            name="Calculadora"
+            component={Calculadora}
+            options={{ title: 'Consumo MIDE' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style={oscuro ? 'light' : 'dark'} />
