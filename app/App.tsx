@@ -59,7 +59,7 @@ export default function App() {
           <Stack.Screen
             name="Calculadora"
             component={Calculadora}
-            options={{ title: 'Consumo MIDE' }}
+            options={{ title: 'Calculadora MIDE Edenor: cuántos kWh te da tu recarga' }}
           />
         </Stack.Navigator>
       </NavigationContainer>
