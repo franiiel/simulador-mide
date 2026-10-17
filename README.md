@@ -9,6 +9,10 @@ La pregunta que busca responder no es "cuánto sale el kWh", sino:
 > ¿Cuántos kWh me da $50.000 **hoy**?
 
 <p align="center">
+  <strong><a href="https://simulador-mide.vercel.app/">→ Probala en el navegador</a></strong>
+</p>
+
+<p align="center">
   <img
     src="docs/img/pantalla-principal.jpg"
     alt="Pantalla de la app: una recarga de $60.000 con 612 kWh acumulados acredita 144,6 kWh a $414,96 por kWh. Debajo, la escalera de precios con los seis tramos y un aviso de que al llegar a 700 kWh acumulados el kWh se abarata."
@@ -45,6 +49,9 @@ Prototipo funcional. Lo que hay hoy:
 - **Scraper** de los cuadros del ENRE (`scraper/`, Python con `uv`): baja los cuadros T1-R de
   Edenor y los emite como JSON, que es lo que el motor lee. Tiene cargados 28 períodos
   (abr/2024 a jul/2026) y ya no hace falta transcribir tarifas a mano.
+- **Versión web** en [simulador-mide.vercel.app](https://simulador-mide.vercel.app/): el
+  mismo código que el APK, exportado con `expo export`. Lo único que cambia es que los
+  plegables no animan, porque `LayoutAnimation` es no-op en el navegador.
 - **Sin backend**, y no hace falta: ver [más abajo](#por-qué-no-hay-backend).
 
 ## El problema

@@ -77,3 +77,6 @@ venv/
 .DS_Store
 Thumbs.db
 .transcripciones
+
+# SDD artifact store (generado por gentle-ai)
+.atl/
